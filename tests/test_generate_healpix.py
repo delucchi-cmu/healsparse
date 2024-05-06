@@ -117,6 +117,28 @@ class GenerateHealpixMapTestCase(unittest.TestCase):
 
         testing.assert_almost_equal(hpmap[ok], sparse_map.get_values_pix(ok).astype(np.float64))
 
+    def test_generate_healpix_map_with_zeros(self):
+        """
+        Testing the generation of a healpix map from an integer map
+        """
+        random.seed(seed=12345)
+
+        nside_coverage = 32
+        nside_map = 64
+
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, np.int64)
+        pixel = np.arange(4000, 20000)
+        pixel = np.delete(pixel, 15000)
+        # Get a random list of integers
+        values = np.random.poisson(size=pixel.size, lam=10)
+        sparse_map.update_values_pix(pixel, values)
+
+        hpmap = sparse_map.generate_healpix_map(dtype=np.int64, sentinel=0)
+
+        (ok,) = np.where(hpmap != 0)
+
+        testing.assert_equal(hpmap[ok], sparse_map.get_values_pix(ok))
+
     @pytest.mark.skipif(not has_healpy, reason="Requires healpy")
     def test_generate_healpix_map_ring(self):
         """

@@ -1323,7 +1323,9 @@ class HealSparseMap(object):
 
             self._metadata = metadata
 
-    def generate_healpix_map(self, nside=None, reduction="mean", key=None, nest=True):
+    def generate_healpix_map(
+        self, nside=None, reduction="mean", key=None, nest=True, dtype=None, sentinel=None
+    ):
         """
         Generate the associated healpix map
 
@@ -1345,6 +1347,11 @@ class HealSparseMap(object):
             field that will be transformed into a HEALPix map.
         nest : `bool`, optional
             Output healpix map should be in nest format?
+        dtype : `str` or `list` or `np.dtype` or None, optional
+            Datatype, any format accepted by numpy. Default is None (use same
+            type as the map)
+        sentinel : `int` or `float` or None, optional
+           Override the default sentinel value.  Default is None (use default)
 
         Returns
         -------
@@ -1376,13 +1383,19 @@ class HealSparseMap(object):
             raise ValueError("Cannot generate HEALPix map with higher resolution than the original.")
 
         # Check to see if we have an integer map.
-        if issubclass(single_map._sparse_map.dtype.type, np.integer):
+        if dtype is not None:
+            dtypeOut = dtype
+        elif issubclass(single_map._sparse_map.dtype.type, np.integer):
             dtypeOut = np.float64
         else:
-            dtypeOut = single_map._sparse_map.dtype
+            dtypeOut = single_map._sparse_map.dtype.type
+
+        if sentinel is None:
+            sentinel = hpg.UNSEEN
+        sentinel = check_sentinel(dtypeOut, sentinel)
 
         # Create an empty HEALPix map, filled with UNSEEN values
-        hp_map = np.full(hpg.nside_to_npixel(nside), hpg.UNSEEN, dtype=dtypeOut)
+        hp_map = np.full(hpg.nside_to_npixel(nside), sentinel, dtype=dtypeOut)
 
         valid_pixels = single_map.valid_pixels
         if not nest:

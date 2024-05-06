@@ -44,10 +44,7 @@ def cat_healsparse_files(
 
     if or_overlap and not check_overlap:
         check_overlap = True
-        raise RuntimeWarning(
-            """or_overlap is True and check_overlap is False,
-                             will check overlap"""
-        )
+        raise RuntimeWarning("or_overlap is True and check_overlap is False, will check overlap")
     # Read in all the coverage maps
     cov_mask_summary = None
     nside_sparse = None
@@ -76,7 +73,9 @@ def cat_healsparse_files(
         else:
             if cov_map.nside_sparse != nside_sparse:
                 # This requirement cannot be relaxed
-                raise RuntimeError("Map %s has a different nside_sparse (%d)" % (cov_map.nside_sparse))
+                raise RuntimeError(
+                    "Map %s has a different nside_sparse (%d)" % (file_list[index], cov_map.nside_sparse)
+                )
 
         if cov_map.nside_coverage == nside_coverage_out:
             # Straight copy
