@@ -1,12 +1,15 @@
 import unittest
-import numpy.testing as testing
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
 import pytest
+
 import healsparse
 
 try:
     import healpy as hp
+
     has_healpy = True
 except ImportError:
     has_healpy = False
@@ -26,7 +29,7 @@ class InterpolateMapTestCase(unittest.TestCase):
 
             sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype)
             npix = hpg.nside_to_npixel(nside_map)
-            sparse_map[0: npix] = np.random.uniform(low=0.0, high=100.0, size=npix).astype(dtype)
+            sparse_map[0:npix] = np.random.uniform(low=0.0, high=100.0, size=npix).astype(dtype)
 
             ra = np.random.uniform(low=0.0, high=360.0, size=10_000)
             dec = np.random.uniform(low=-90.0, high=90.0, size=10_000)
@@ -48,7 +51,7 @@ class InterpolateMapTestCase(unittest.TestCase):
 
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, np.float64)
         npix = hpg.nside_to_npixel(nside_map)
-        sparse_map[0: npix] = np.random.uniform(low=0.0, high=100.0, size=npix)
+        sparse_map[0:npix] = np.random.uniform(low=0.0, high=100.0, size=npix)
 
         ra = np.random.uniform(low=0.0, high=360.0, size=100)
         dec = np.random.uniform(low=-90.0, high=90.0, size=100)
@@ -64,7 +67,7 @@ class InterpolateMapTestCase(unittest.TestCase):
 
         # Check that only the one is UNSEEN.
         testing.assert_almost_equal(vals[1], hpg.UNSEEN)
-        ok, = np.where(vals != hpg.UNSEEN)
+        (ok,) = np.where(vals != hpg.UNSEEN)
         self.assertEqual(len(ok), len(ra) - 1)
 
         # And check that if we call just the one pos it works.
@@ -74,7 +77,7 @@ class InterpolateMapTestCase(unittest.TestCase):
 
         # Check with allow_partial
         vals = sparse_map.interpolate_pos(ra, dec, allow_partial=True)
-        ok, = np.where(vals != hpg.UNSEEN)
+        (ok,) = np.where(vals != hpg.UNSEEN)
         self.assertEqual(len(ok), len(ra))
 
         # And check that if we call just the one pos it works.
@@ -86,8 +89,8 @@ class InterpolateMapTestCase(unittest.TestCase):
         testing.assert_almost_equal(vals2[0], vals[1])
         pix, wgt = hpg.get_interpolation_weights(nside_map, ra[1], dec[1], lonlat=True)
         values = sparse_map[pix]
-        values_valid = (values != hpg.UNSEEN)
-        val_comp = np.sum(values[values_valid]*wgt[values_valid])/np.sum(wgt[values_valid])
+        values_valid = values != hpg.UNSEEN
+        val_comp = np.sum(values[values_valid] * wgt[values_valid]) / np.sum(wgt[values_valid])
         testing.assert_almost_equal(vals2[0], val_comp)
 
     def test_interpolate_map_float_all_sentinel(self):
@@ -121,7 +124,7 @@ class InterpolateMapTestCase(unittest.TestCase):
 
             sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype)
             npix = hpg.nside_to_npixel(nside_map)
-            sparse_map[0: npix] = np.random.poisson(size=npix, lam=10).astype(dtype)
+            sparse_map[0:npix] = np.random.poisson(size=npix, lam=10).astype(dtype)
 
             ra = np.random.uniform(low=0.0, high=360.0, size=10_000)
             dec = np.random.uniform(low=-90.0, high=90.0, size=10_000)
@@ -162,5 +165,5 @@ class InterpolateMapTestCase(unittest.TestCase):
             sparse_map.interpolate_pos(0.0, 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

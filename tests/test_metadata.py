@@ -1,9 +1,10 @@
-import unittest
-import numpy as np
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 import warnings
+
+import numpy as np
 
 import healsparse
 
@@ -12,6 +13,7 @@ class MetadataTestCase(unittest.TestCase):
     """
     Test code for metadata reading/writing.
     """
+
     def test_metadata_make_empty(self):
         """
         Test metadata passing on make_empty and make_empty_like
@@ -19,12 +21,11 @@ class MetadataTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 64
 
-        metadata_in = {'A': 15,
-                       'B': 'test',
-                       'LONGKEYNAME': 4.5}
+        metadata_in = {"A": 15, "B": "test", "LONGKEYNAME": 4.5}
 
-        test_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map,
-                                                       np.float64, metadata=metadata_in)
+        test_map = healsparse.HealSparseMap.make_empty(
+            nside_coverage, nside_map, np.float64, metadata=metadata_in
+        )
         metadata_out = test_map.metadata
 
         for key in metadata_in:
@@ -36,9 +37,7 @@ class MetadataTestCase(unittest.TestCase):
         for key in metadata_in:
             self.assertEqual(metadata_out[key], metadata_in[key])
 
-        metadata_in2 = {'A': 15,
-                        'B': 'test',
-                        'LONGKEYNAME': 5.5}
+        metadata_in2 = {"A": 15, "B": "test", "LONGKEYNAME": 5.5}
 
         test_map3 = healsparse.HealSparseMap.make_empty_like(test_map, metadata=metadata_in2)
         metadata_out = test_map3.metadata
@@ -54,25 +53,37 @@ class MetadataTestCase(unittest.TestCase):
         nside_map = 64
 
         # Not a dict
-        metadata = '5'
-        self.assertRaises(ValueError,
-                          healsparse.HealSparseMap.make_empty,
-                          nside_coverage, nside_map, np.float64,
-                          metadata=metadata)
+        metadata = "5"
+        self.assertRaises(
+            ValueError,
+            healsparse.HealSparseMap.make_empty,
+            nside_coverage,
+            nside_map,
+            np.float64,
+            metadata=metadata,
+        )
 
         # Not a string key
         metadata = {7: 7}
-        self.assertRaises(ValueError,
-                          healsparse.HealSparseMap.make_empty,
-                          nside_coverage, nside_map, np.float64,
-                          metadata=metadata)
+        self.assertRaises(
+            ValueError,
+            healsparse.HealSparseMap.make_empty,
+            nside_coverage,
+            nside_map,
+            np.float64,
+            metadata=metadata,
+        )
 
         # Not upper-case
-        metadata = {'test': 7}
-        self.assertRaises(ValueError,
-                          healsparse.HealSparseMap.make_empty,
-                          nside_coverage, nside_map, np.float64,
-                          metadata=metadata)
+        metadata = {"test": 7}
+        self.assertRaises(
+            ValueError,
+            healsparse.HealSparseMap.make_empty,
+            nside_coverage,
+            nside_map,
+            np.float64,
+            metadata=metadata,
+        )
 
     def test_metadata_getset(self):
         """
@@ -81,9 +92,7 @@ class MetadataTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 64
 
-        metadata_in = {'A': 15,
-                       'B': 'test',
-                       'LONGKEYNAME': 4.5}
+        metadata_in = {"A": 15, "B": "test", "LONGKEYNAME": 4.5}
 
         test_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, np.float64)
         test_map.metadata = metadata_in
@@ -96,18 +105,17 @@ class MetadataTestCase(unittest.TestCase):
         """
         Test writing and reading metadata
         """
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         nside_coverage = 32
         nside_map = 64
 
-        metadata_in = {'A': 15,
-                       'B': 'test',
-                       'LONGKEYNAME': 4.5}
-        test_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map,
-                                                       np.float64, metadata=metadata_in)
+        metadata_in = {"A": 15, "B": "test", "LONGKEYNAME": 4.5}
+        test_map = healsparse.HealSparseMap.make_empty(
+            nside_coverage, nside_map, np.float64, metadata=metadata_in
+        )
 
-        fname = os.path.join(self.test_dir, 'healsparse_map_metadata.fits')
+        fname = os.path.join(self.test_dir, "healsparse_map_metadata.fits")
 
         # Make sure LONGKEYNAME doesn't give any warnings.
         with warnings.catch_warnings():
@@ -130,5 +138,5 @@ class MetadataTestCase(unittest.TestCase):
                 shutil.rmtree(self.test_dir, True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,9 @@
 import unittest
-import numpy.testing as testing
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
+
 import healsparse
 
 
@@ -97,34 +99,31 @@ class UpdateValuesTestCase(unittest.TestCase):
         # Check with new unique pixels
         pixels = np.arange(4)
         values = np.array([2**0, 2**1, 2**2, 2**4], dtype=dtype)
-        sparse_map.update_values_pix(pixels, values, operation='or')
+        sparse_map.update_values_pix(pixels, values, operation="or")
 
         testing.assert_array_equal(sparse_map[pixels], values)
 
         # Check with pre-existing unique pixels
         values2 = np.array([2**1, 2**2, 2**3, 2**4], dtype=dtype)
-        sparse_map.update_values_pix(pixels, values2, operation='or')
+        sparse_map.update_values_pix(pixels, values2, operation="or")
 
-        testing.assert_array_equal(sparse_map[pixels],
-                                   values | values2)
+        testing.assert_array_equal(sparse_map[pixels], values | values2)
 
         # Check with new non-unique pixels
         pixels = np.array([100, 101, 102, 100])
         values = np.array([2**0, 2**1, 2**2, 2**4], dtype=dtype)
-        sparse_map.update_values_pix(pixels, values, operation='or')
+        sparse_map.update_values_pix(pixels, values, operation="or")
 
-        testing.assert_array_equal(sparse_map[pixels],
-                                   np.array([2**0 | 2**4, 2**1, 2**2, 2**0 | 2**4]))
+        testing.assert_array_equal(sparse_map[pixels], np.array([2**0 | 2**4, 2**1, 2**2, 2**0 | 2**4]))
 
         # Check with pre-existing non-unique pixels
         values = np.array([2**1, 2**2, 2**3, 2**5], dtype=dtype)
-        sparse_map.update_values_pix(pixels, values, operation='or')
+        sparse_map.update_values_pix(pixels, values, operation="or")
 
-        testing.assert_array_equal(sparse_map[pixels],
-                                   np.array([2**0 | 2**4 | 2**1 | 2**5,
-                                             2**1 | 2**2,
-                                             2**2 | 2**3,
-                                             2**0 | 2**4 | 2**1 | 2**5]))
+        testing.assert_array_equal(
+            sparse_map[pixels],
+            np.array([2**0 | 2**4 | 2**1 | 2**5, 2**1 | 2**2, 2**2 | 2**3, 2**0 | 2**4 | 2**1 | 2**5]),
+        )
 
     def test_update_values_and(self):
         """
@@ -140,30 +139,29 @@ class UpdateValuesTestCase(unittest.TestCase):
         pixels = np.arange(4)
         values = np.array([2**0, 2**1, 2**2, 2**4], dtype=dtype)
 
-        sparse_map.update_values_pix(pixels, values, operation='and')
-        testing.assert_array_equal(sparse_map[pixels], values*0)
+        sparse_map.update_values_pix(pixels, values, operation="and")
+        testing.assert_array_equal(sparse_map[pixels], values * 0)
 
         # Check with pre-existing unique pixels
         sparse_map[pixels] = values
-        sparse_map.update_values_pix(pixels, values, operation='and')
+        sparse_map.update_values_pix(pixels, values, operation="and")
         testing.assert_array_equal(sparse_map[pixels], values)
 
         # Check with new non-unique pixels
         pixels = np.array([100, 101, 102, 100])
         values = np.array([2**0, 2**1, 2**2, 2**4], dtype=dtype)
 
-        sparse_map.update_values_pix(pixels, values, operation='and')
-        testing.assert_array_equal(sparse_map[pixels], values*0)
+        sparse_map.update_values_pix(pixels, values, operation="and")
+        testing.assert_array_equal(sparse_map[pixels], values * 0)
 
         # Check with pre-existing non-unique pixels
         sparse_map[100] = 2**0 | 2**4
         sparse_map[101] = 2**1
         sparse_map[102] = 2**2
 
-        sparse_map.update_values_pix(pixels, values, operation='and')
+        sparse_map.update_values_pix(pixels, values, operation="and")
         # The first and last will be 0 because we get anded sequentially.
-        testing.assert_array_equal(sparse_map[pixels],
-                                   [0, 2**1, 2**2, 0])
+        testing.assert_array_equal(sparse_map[pixels], [0, 2**1, 2**2, 0])
 
     def test_update_values_add(self):
         """
@@ -174,7 +172,7 @@ class UpdateValuesTestCase(unittest.TestCase):
         dtype = np.float64
 
         for sentinel in [hpg.UNSEEN, 0.0]:
-            for update_type in ['single', 'array']:
+            for update_type in ["single", "array"]:
                 sparse_map = healsparse.HealSparseMap.make_empty(
                     nside_coverage,
                     nside_map,
@@ -184,20 +182,20 @@ class UpdateValuesTestCase(unittest.TestCase):
 
                 # Add a constant value
                 test_pix = np.array([0, 0, 10, 10, 1000, 1000, 1000, 10000])
-                if update_type == 'single':
-                    sparse_map.update_values_pix(test_pix, 1.0, operation='add')
+                if update_type == "single":
+                    sparse_map.update_values_pix(test_pix, 1.0, operation="add")
                 else:
-                    sparse_map.update_values_pix(test_pix, np.ones(test_pix.size), operation='add')
+                    sparse_map.update_values_pix(test_pix, np.ones(test_pix.size), operation="add")
 
                 testing.assert_array_equal(sparse_map.valid_pixels, np.unique(test_pix))
                 testing.assert_array_equal(sparse_map[sparse_map.valid_pixels], [2.0, 2.0, 3.0, 1.0])
 
                 # Try again with a constant value, with a few old and a few new pixels
                 test_pix2 = np.array([0, 0, 1, 1, 1])
-                if update_type == 'single':
-                    sparse_map.update_values_pix(test_pix2, 2.0, operation='add')
+                if update_type == "single":
+                    sparse_map.update_values_pix(test_pix2, 2.0, operation="add")
                 else:
-                    sparse_map.update_values_pix(test_pix2, np.full(test_pix2.size, 2.0), operation='add')
+                    sparse_map.update_values_pix(test_pix2, np.full(test_pix2.size, 2.0), operation="add")
 
                 testing.assert_array_equal(
                     sparse_map.valid_pixels,
@@ -210,7 +208,7 @@ class UpdateValuesTestCase(unittest.TestCase):
                 dec = np.array([70.0, 70.0])
                 test_pix3 = hpg.angle_to_pixel(sparse_map.nside_sparse, ra, dec)
 
-                sparse_map.update_values_pos(ra, dec, 3.0, operation='add')
+                sparse_map.update_values_pos(ra, dec, 3.0, operation="add")
 
                 testing.assert_array_equal(
                     np.sort(sparse_map.valid_pixels),
@@ -222,16 +220,16 @@ class UpdateValuesTestCase(unittest.TestCase):
                 )
 
         # Test recarray raise
-        dtype = [('col1', 'f8'), ('col2', 'f8')]
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype, primary='col1')
+        dtype = [("col1", "f8"), ("col2", "f8")]
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype, primary="col1")
 
         with self.assertRaises(ValueError):
-            sparse_map.update_values_pix(0, 1.0, operation='add')
+            sparse_map.update_values_pix(0, 1.0, operation="add")
 
         # Test None raise
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, np.float32)
         with self.assertRaises(ValueError):
-            sparse_map.update_values_pix(0, None, operation='add')
+            sparse_map.update_values_pix(0, None, operation="add")
 
     def test_update_values_pos(self):
         """
@@ -256,5 +254,5 @@ class UpdateValuesTestCase(unittest.TestCase):
         self.assertRaises(ValueError, sparse_map.update_values_pos, ra, dec, 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

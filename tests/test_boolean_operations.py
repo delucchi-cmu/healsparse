@@ -1,6 +1,7 @@
 import unittest
-import numpy.testing as testing
+
 import numpy as np
+import numpy.testing as testing
 
 from healsparse import HealSparseMap
 
@@ -10,8 +11,8 @@ class BooleanOperationsTestCase(unittest.TestCase):
         nfine_per_cov = map_old._cov_map.nfine_per_cov
 
         testing.assert_array_equal(
-            map_new._sparse_map[: nfine_per_cov],
-            map_old._sparse_map[: nfine_per_cov],
+            map_new._sparse_map[:nfine_per_cov],
+            map_old._sparse_map[:nfine_per_cov],
         )
         # And the other region is as expected.
         if operation == "and":
@@ -21,21 +22,18 @@ class BooleanOperationsTestCase(unittest.TestCase):
         elif operation == "xor":
             compare = map_old._sparse_map[nfine_per_cov:] ^ value
 
-        testing.assert_array_equal(
-            map_new._sparse_map[nfine_per_cov:],
-            compare
-        )
+        testing.assert_array_equal(map_new._sparse_map[nfine_per_cov:], compare)
 
     def _check_operated_maps_map(self, map_new, map1, operation, map2):
         # Check combined coverage mask.
         coverage_mask = map1.coverage_mask | map2.coverage_mask
         testing.assert_array_equal(map_new.coverage_mask, coverage_mask)
 
-        cov_pixels2, = map2.coverage_mask.nonzero()
+        (cov_pixels2,) = map2.coverage_mask.nonzero()
 
         # Over these coverage pixels, we should match.
         for cov_pixel in coverage_mask.nonzero()[0]:
-            pixels = np.arange(map_new._cov_map.nfine_per_cov) + cov_pixel*map_new._cov_map.nfine_per_cov
+            pixels = np.arange(map_new._cov_map.nfine_per_cov) + cov_pixel * map_new._cov_map.nfine_per_cov
             if cov_pixel in cov_pixels2:
                 # These should be altered.
                 if operation == "and":
@@ -55,8 +53,8 @@ class BooleanOperationsTestCase(unittest.TestCase):
 
     def test_and_const(self):
         m_bool = HealSparseMap.make_empty(32, 256, np.bool_)
-        m_bool[0: 1000] = True
-        m_bool[500_000: 600_000] = True
+        m_bool[0:1000] = True
+        m_bool[500_000:600_000] = True
 
         m_bool2 = m_bool & True
         self._check_operated_maps_value(m_bool2, m_bool, "and", True)
@@ -85,8 +83,8 @@ class BooleanOperationsTestCase(unittest.TestCase):
 
     def test_or_const(self):
         m_bool = HealSparseMap.make_empty(32, 256, np.bool_)
-        m_bool[0: 1000] = True
-        m_bool[500_000: 600_000] = True
+        m_bool[0:1000] = True
+        m_bool[500_000:600_000] = True
 
         m_bool2 = m_bool | True
         self._check_operated_maps_value(m_bool2, m_bool, "or", True)
@@ -115,8 +113,8 @@ class BooleanOperationsTestCase(unittest.TestCase):
 
     def test_xor_const(self):
         m_bool = HealSparseMap.make_empty(32, 256, np.bool_)
-        m_bool[0: 1000] = True
-        m_bool[500_000: 600_000] = True
+        m_bool[0:1000] = True
+        m_bool[500_000:600_000] = True
 
         m_bool2 = m_bool ^ True
         self._check_operated_maps_value(m_bool2, m_bool, "xor", True)
@@ -153,17 +151,17 @@ class BooleanOperationsTestCase(unittest.TestCase):
             m2_bool = HealSparseMap.make_empty(32, 256, np.bool_)
 
             if cov_type == "same":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "first":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 20_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:20_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "second":
-                m_bool[10_000: 20_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:20_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
 
             for combo in range(4):
                 if combo == 0:
@@ -200,17 +198,17 @@ class BooleanOperationsTestCase(unittest.TestCase):
             m2_bool = HealSparseMap.make_empty(32, 256, np.bool_)
 
             if cov_type == "same":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "first":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 20_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:20_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "second":
-                m_bool[10_000: 20_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:20_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
 
             for combo in range(4):
                 if combo == 0:
@@ -247,17 +245,17 @@ class BooleanOperationsTestCase(unittest.TestCase):
             m2_bool = HealSparseMap.make_empty(32, 256, np.bool_)
 
             if cov_type == "same":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "first":
-                m_bool[10_000: 50_000] = True
-                m2_bool[10_000: 20_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:50_000] = True
+                m2_bool[10_000:20_000] = True
+                m2_bool[15_000:16_000] = False
             elif cov_type == "second":
-                m_bool[10_000: 20_000] = True
-                m2_bool[10_000: 50_000] = True
-                m2_bool[15_000: 16_000] = False
+                m_bool[10_000:20_000] = True
+                m2_bool[10_000:50_000] = True
+                m2_bool[15_000:16_000] = False
 
             for combo in range(4):
                 if combo == 0:
@@ -286,30 +284,30 @@ class BooleanOperationsTestCase(unittest.TestCase):
 
     def test_invert(self):
         m_bool = HealSparseMap.make_empty(32, 256, np.bool_)
-        m_bool[0: 1000] = True
-        m_bool[500_000: 600_000] = True
+        m_bool[0:1000] = True
+        m_bool[500_000:600_000] = True
 
         m_bool2 = ~m_bool
 
         testing.assert_array_equal(
-            m_bool2._sparse_map[m_bool2._cov_map.nfine_per_cov:],
-            ~m_bool._sparse_map[m_bool2._cov_map.nfine_per_cov:],
+            m_bool2._sparse_map[m_bool2._cov_map.nfine_per_cov :],
+            ~m_bool._sparse_map[m_bool2._cov_map.nfine_per_cov :],
         )
 
         m_bool2 = m_bool.copy()
         m_bool2.invert()
 
         testing.assert_array_equal(
-            m_bool2._sparse_map[m_bool2._cov_map.nfine_per_cov:],
-            ~m_bool._sparse_map[m_bool2._cov_map.nfine_per_cov:],
+            m_bool2._sparse_map[m_bool2._cov_map.nfine_per_cov :],
+            ~m_bool._sparse_map[m_bool2._cov_map.nfine_per_cov :],
         )
 
         m_packed = m_bool.as_bit_packed_map()
         m_packed2 = ~m_packed
 
         testing.assert_array_equal(
-            m_packed2._sparse_map[m_packed2._cov_map.nfine_per_cov:],
-            ~m_packed._sparse_map[m_packed2._cov_map.nfine_per_cov:],
+            m_packed2._sparse_map[m_packed2._cov_map.nfine_per_cov :],
+            ~m_packed._sparse_map[m_packed2._cov_map.nfine_per_cov :],
         )
 
         m_packed = m_bool.as_bit_packed_map()
@@ -317,8 +315,8 @@ class BooleanOperationsTestCase(unittest.TestCase):
         m_packed2.invert()
 
         testing.assert_array_equal(
-            m_packed2._sparse_map[m_packed2._cov_map.nfine_per_cov:],
-            ~m_packed._sparse_map[m_packed2._cov_map.nfine_per_cov:],
+            m_packed2._sparse_map[m_packed2._cov_map.nfine_per_cov :],
+            ~m_packed._sparse_map[m_packed2._cov_map.nfine_per_cov :],
         )
 
         m_temp = HealSparseMap.make_empty(32, 256, np.int32)
@@ -330,5 +328,5 @@ class BooleanOperationsTestCase(unittest.TestCase):
             m_temp.invert()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

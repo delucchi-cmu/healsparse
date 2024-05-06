@@ -1,6 +1,7 @@
 import unittest
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
 
 import healsparse
 
@@ -96,5 +97,5 @@ class SingleDatatypesTestCase(unittest.TestCase):
             sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, bool, sentinel=0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

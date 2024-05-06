@@ -1,9 +1,10 @@
-import unittest
-import numpy.testing as testing
-import numpy as np
-import tempfile
 import os
 import shutil
+import tempfile
+import unittest
+
+import numpy as np
+import numpy.testing as testing
 import pytest
 
 import healsparse
@@ -13,6 +14,7 @@ from healsparse.packedBoolArray import _PackedBoolArray
 
 class PackedBoolArrayTestCase(unittest.TestCase):
     """Tests for _PackedBoolArray."""
+
     def _make_short_arrays(self):
         # This creates 4 short (<= 8) arrays:
         # First is the full 8 (start = 0, end = 8).
@@ -632,19 +634,19 @@ class PackedBoolArrayTestCase(unittest.TestCase):
             # Test getting slices.
             # The full slice.
             testing.assert_array_equal(np.array(pba[:]), arr[:])
-            testing.assert_array_equal(np.array(pba[0: len(pba)]), arr[0: len(pba)])
+            testing.assert_array_equal(np.array(pba[0 : len(pba)]), arr[0 : len(pba)])
 
             # Start at 0, end at less than the last:
             testing.assert_array_equal(np.array(pba[: len(pba) - 2]), arr[: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[0: len(pba) - 2]), arr[0: len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[0 : len(pba) - 2]), arr[0 : len(pba) - 2])
 
             # Start at 1, end at end:
             testing.assert_array_equal(np.array(pba[1:]), arr[1:])
-            testing.assert_array_equal(np.array(pba[1: len(pba)]), arr[1: len(pba)])
+            testing.assert_array_equal(np.array(pba[1 : len(pba)]), arr[1 : len(pba)])
 
             # Start at 1, end at less than the last:
-            testing.assert_array_equal(np.array(pba[1: len(pba) - 2]), arr[1: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[1: -2]), arr[1: -2])
+            testing.assert_array_equal(np.array(pba[1 : len(pba) - 2]), arr[1 : len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[1:-2]), arr[1:-2])
 
             # And get an array of indices:
             inds = np.arange(len(pba))
@@ -687,27 +689,27 @@ class PackedBoolArrayTestCase(unittest.TestCase):
             # Test getting slices.
             # The full slice.
             testing.assert_array_equal(np.array(pba[:]), arr[:])
-            testing.assert_array_equal(np.array(pba[0: len(pba)]), arr[0: len(pba)])
+            testing.assert_array_equal(np.array(pba[0 : len(pba)]), arr[0 : len(pba)])
 
             # Start at 0, end at less than the last:
             testing.assert_array_equal(np.array(pba[: len(pba) - 2]), arr[: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[0: len(pba) - 2]), arr[0: len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[0 : len(pba) - 2]), arr[0 : len(pba) - 2])
 
             # Start at 1, end at end:
             testing.assert_array_equal(np.array(pba[1:]), arr[1:])
-            testing.assert_array_equal(np.array(pba[1: len(pba)]), arr[1: len(pba)])
+            testing.assert_array_equal(np.array(pba[1 : len(pba)]), arr[1 : len(pba)])
 
             # Start at 1, end at less than the last:
-            testing.assert_array_equal(np.array(pba[1: len(pba) - 2]), arr[1: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[1: -2]), arr[1: -2])
+            testing.assert_array_equal(np.array(pba[1 : len(pba) - 2]), arr[1 : len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[1:-2]), arr[1:-2])
 
             # Start at 8, end at end:
             testing.assert_array_equal(np.array(pba[8:]), arr[8:])
-            testing.assert_array_equal(np.array(pba[8: len(pba)]), arr[8: len(pba)])
+            testing.assert_array_equal(np.array(pba[8 : len(pba)]), arr[8 : len(pba)])
 
             # Start at 9, end at end:
             testing.assert_array_equal(np.array(pba[9:]), arr[9:])
-            testing.assert_array_equal(np.array(pba[9: len(pba)]), arr[9: len(pba)])
+            testing.assert_array_equal(np.array(pba[9 : len(pba)]), arr[9 : len(pba)])
 
             # And get an array of indices:
             inds = np.arange(len(pba))
@@ -726,30 +728,30 @@ class PackedBoolArrayTestCase(unittest.TestCase):
             # Test getting slices.
             # The full slice.
             testing.assert_array_equal(np.array(pba[:]), arr[:])
-            testing.assert_array_equal(np.array(pba[0: len(pba)]), arr[0: len(pba)])
+            testing.assert_array_equal(np.array(pba[0 : len(pba)]), arr[0 : len(pba)])
 
             # Start at 0, end at less than the last:
             testing.assert_array_equal(np.array(pba[: len(pba) - 2]), arr[: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[0: len(pba) - 2]), arr[0: len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[0 : len(pba) - 2]), arr[0 : len(pba) - 2])
 
             # Start at 1, end at end:
             testing.assert_array_equal(np.array(pba[1:]), arr[1:])
-            testing.assert_array_equal(np.array(pba[1: len(pba)]), arr[1: len(pba)])
+            testing.assert_array_equal(np.array(pba[1 : len(pba)]), arr[1 : len(pba)])
 
             # Start at 1, end at less than the last:
-            testing.assert_array_equal(np.array(pba[1: len(pba) - 2]), arr[1: len(pba) - 2])
-            testing.assert_array_equal(np.array(pba[1: -2]), arr[1: -2])
+            testing.assert_array_equal(np.array(pba[1 : len(pba) - 2]), arr[1 : len(pba) - 2])
+            testing.assert_array_equal(np.array(pba[1:-2]), arr[1:-2])
 
             # Start at 16, end at end:
             testing.assert_array_equal(np.array(pba[16:]), arr[16:])
-            testing.assert_array_equal(np.array(pba[16: len(pba)]), arr[16: len(pba)])
+            testing.assert_array_equal(np.array(pba[16 : len(pba)]), arr[16 : len(pba)])
 
             # Start at 16, end at 24 (aligned, less than end):
-            testing.assert_array_equal(np.array(pba[16: 24]), arr[16: 24])
+            testing.assert_array_equal(np.array(pba[16:24]), arr[16:24])
 
             # Start at 17, end at end:
             testing.assert_array_equal(np.array(pba[17:]), arr[17:])
-            testing.assert_array_equal(np.array(pba[17: len(pba)]), arr[17: len(pba)])
+            testing.assert_array_equal(np.array(pba[17 : len(pba)]), arr[17 : len(pba)])
 
             # And get an array of indices:
             inds = np.arange(len(pba))
@@ -826,16 +828,16 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 pba_test = pba.copy()
                 pba_array = np.array(pba)
 
-                pba_test2 = pba_test[1: -2] & True
-                pba_array2 = pba_array[1: -2] & True
+                pba_test2 = pba_test[1:-2] & True
+                pba_array2 = pba_array[1:-2] & True
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test2 = pba_test[1: -2] & False
-                pba_array2 = pba_array[1: -2] & False
+                pba_test2 = pba_test[1:-2] & False
+                pba_array2 = pba_array[1:-2] & False
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] &= True
-                pba_array[1: -2] &= True
+                pba_test[1:-2] &= True
+                pba_array[1:-2] &= True
                 testing.assert_array_equal(pba_test, pba_array)
 
                 # Test with _PackedBoolArray.
@@ -846,12 +848,12 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 other[:] = True
                 other[1] = False
 
-                pba_test2 = pba_test[1: -2] & other[1: -2]
-                pba_array2 = pba_array[1: -2] & np.array(other)[1: -2]
+                pba_test2 = pba_test[1:-2] & other[1:-2]
+                pba_array2 = pba_array[1:-2] & np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] &= other[1: -2]
-                pba_array[1: -2] &= np.array(other)[1: -2]
+                pba_test[1:-2] &= other[1:-2]
+                pba_array[1:-2] &= np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test, pba_array)
 
     def test_or(self):
@@ -924,16 +926,16 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 pba_test = pba.copy()
                 pba_array = np.array(pba)
 
-                pba_test2 = pba_test[1: -2] | True
-                pba_array2 = pba_array[1: -2] | True
+                pba_test2 = pba_test[1:-2] | True
+                pba_array2 = pba_array[1:-2] | True
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test2 = pba_test[1: -2] | False
-                pba_array2 = pba_array[1: -2] | False
+                pba_test2 = pba_test[1:-2] | False
+                pba_array2 = pba_array[1:-2] | False
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] |= True
-                pba_array[1: -2] |= True
+                pba_test[1:-2] |= True
+                pba_array[1:-2] |= True
                 testing.assert_array_equal(pba_test, pba_array)
 
                 # Test with _PackedBoolArray.
@@ -944,12 +946,12 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 other[:] = True
                 other[1] = False
 
-                pba_test2 = pba_test[1: -2] | other[1: -2]
-                pba_array2 = pba_array[1: -2] | np.array(other)[1: -2]
+                pba_test2 = pba_test[1:-2] | other[1:-2]
+                pba_array2 = pba_array[1:-2] | np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] |= other[1: -2]
-                pba_array[1: -2] |= np.array(other)[1: -2]
+                pba_test[1:-2] |= other[1:-2]
+                pba_array[1:-2] |= np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test, pba_array)
 
                 # Should do nothing.
@@ -1026,16 +1028,16 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 pba_test = pba.copy()
                 pba_array = np.array(pba)
 
-                pba_test2 = pba_test[1: -2] ^ True
-                pba_array2 = pba_array[1: -2] ^ True
+                pba_test2 = pba_test[1:-2] ^ True
+                pba_array2 = pba_array[1:-2] ^ True
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test2 = pba_test[1: -2] ^ False
-                pba_array2 = pba_array[1: -2] ^ False
+                pba_test2 = pba_test[1:-2] ^ False
+                pba_array2 = pba_array[1:-2] ^ False
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] ^= True
-                pba_array[1: -2] ^= True
+                pba_test[1:-2] ^= True
+                pba_array[1:-2] ^= True
                 testing.assert_array_equal(pba_test, pba_array)
 
                 # Test with _PackedBoolArray.
@@ -1046,12 +1048,12 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 other[:] = True
                 other[1] = False
 
-                pba_test2 = pba_test[1: -2] ^ other[1: -2]
-                pba_array2 = pba_array[1: -2] ^ np.array(other)[1: -2]
+                pba_test2 = pba_test[1:-2] ^ other[1:-2]
+                pba_array2 = pba_array[1:-2] ^ np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test2, pba_array2)
 
-                pba_test[1: -2] ^= other[1: -2]
-                pba_array[1: -2] ^= np.array(other)[1: -2]
+                pba_test[1:-2] ^= other[1:-2]
+                pba_array[1:-2] ^= np.array(other)[1:-2]
                 testing.assert_array_equal(pba_test, pba_array)
 
     def test_invert(self):
@@ -1094,17 +1096,18 @@ class PackedBoolArrayTestCase(unittest.TestCase):
                 pba_test = pba.copy()
                 pba_array = np.array(pba)
 
-                pba_test[1: -2] = ~pba_test[1: -2]
-                pba_array[1: -2] = ~pba_array[1: -2]
+                pba_test[1:-2] = ~pba_test[1:-2]
+                pba_array[1:-2] = ~pba_array[1:-2]
                 testing.assert_array_equal(pba_test, pba_array)
 
-                pba_test[1: -2].invert()
-                pba_array[1: -2] = np.invert(pba_array[1: -2])
+                pba_test[1:-2].invert()
+                pba_array[1:-2] = np.invert(pba_array[1:-2])
                 testing.assert_array_equal(pba_test, pba_array)
 
 
 class HealSparseBitPackedTestCase(unittest.TestCase):
     """Tests for HealSparseMap with bit_packed."""
+
     def test_make_bit_packed_map(self):
         nside_coverage = 32
 
@@ -1136,11 +1139,11 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 1024
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
 
-        sparse_map[10_000_000: 11_000_000] = True
+        sparse_map[10_000_000:11_000_000] = True
 
         fname = os.path.join(self.test_dir, f"healsparse_bitpacked_{nside_map}.hsp")
         sparse_map.write(fname, clobber=True)
@@ -1154,7 +1157,7 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
 
         # Test reading back partial coverage.
         cov = healsparse.HealSparseCoverage.read(fname)
-        covered_pixels, = np.where(cov.coverage_mask)
+        (covered_pixels,) = np.where(cov.coverage_mask)
 
         sparse_map_in_partial = healsparse.HealSparseMap.read(
             fname,
@@ -1165,17 +1168,18 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         self.assertEqual(sparse_map_in_partial.sentinel, False)
 
         cov_pixels = sparse_map._cov_map.cov_pixels(sparse_map.valid_pixels)
-        pixel_sub = sparse_map.valid_pixels[(cov_pixels == covered_pixels[1]) |
-                                            (cov_pixels == covered_pixels[10])]
+        pixel_sub = sparse_map.valid_pixels[
+            (cov_pixels == covered_pixels[1]) | (cov_pixels == covered_pixels[10])
+        ]
         testing.assert_array_equal(sparse_map_in_partial.valid_pixels, pixel_sub)
 
-    @pytest.mark.skipif("GITHUB_ACTIONS" in os.environ, reason='Giant test cannot be run on GHA')
+    @pytest.mark.skipif("GITHUB_ACTIONS" in os.environ, reason="Giant test cannot be run on GHA")
     def notest_bit_packed_map_fits_io_giant(self):
         # I don't know how to test this.
         nside_coverage = 32
         nside_map = 2**17
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
         sparse_map = HealSparseMap.make_empty(
             nside_coverage,
             nside_map,
@@ -1196,8 +1200,8 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         self.assertEqual(sparse_map_in.dtype, np.bool_)
         self.assertEqual(sparse_map_in.sentinel, False)
         # Confirm that it was reshaped on write.
-        self.assertIn('RESHAPED', sparse_map_in.metadata)
-        self.assertTrue(sparse_map_in.metadata['RESHAPED'])
+        self.assertIn("RESHAPED", sparse_map_in.metadata)
+        self.assertTrue(sparse_map_in.metadata["RESHAPED"])
 
         self.assertEqual(sparse_map_in.n_valid, 2)
 
@@ -1212,20 +1216,20 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         self.assertEqual(sparse_map_in_partial.dtype, np.bool_)
         self.assertEqual(sparse_map_in_partial.sentinel, False)
 
-        cov_pixels_partial, = np.where(sparse_map_in_partial.coverage_mask)
+        (cov_pixels_partial,) = np.where(sparse_map_in_partial.coverage_mask)
         testing.assert_array_equal(cov_pixels_partial, cov_pixels)
         testing.assert_array_equal(sparse_map_in_partial.valid_pixels, [1_000_000, 100_000_000])
 
-    @pytest.mark.skipif(not healsparse.parquet_shim.use_pyarrow, reason='Requires pyarrow')
+    @pytest.mark.skipif(not healsparse.parquet_shim.use_pyarrow, reason="Requires pyarrow")
     def test_bit_packed_map_parquet_io(self):
         nside_coverage = 32
         nside_map = 1024
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
 
-        sparse_map[10_000_000: 11_000_000] = True
+        sparse_map[10_000_000:11_000_000] = True
 
         fname = os.path.join(self.test_dir, f"healsparse_bitpacked_{nside_map}.hsp.parquet")
         sparse_map.write(fname, clobber=True, format="parquet")
@@ -1239,7 +1243,7 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
 
         # Test reading back partial coverage.
         cov = healsparse.HealSparseCoverage.read(fname)
-        covered_pixels, = np.where(cov.coverage_mask)
+        (covered_pixels,) = np.where(cov.coverage_mask)
 
         sparse_map_in_partial = healsparse.HealSparseMap.read(
             fname,
@@ -1250,19 +1254,20 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         self.assertEqual(sparse_map_in_partial.sentinel, False)
 
         cov_pixels = sparse_map._cov_map.cov_pixels(sparse_map.valid_pixels)
-        pixel_sub = sparse_map.valid_pixels[(cov_pixels == covered_pixels[1]) |
-                                            (cov_pixels == covered_pixels[10])]
+        pixel_sub = sparse_map.valid_pixels[
+            (cov_pixels == covered_pixels[1]) | (cov_pixels == covered_pixels[10])
+        ]
         testing.assert_array_equal(sparse_map_in_partial.valid_pixels, pixel_sub)
 
     def test_bit_packed_map_fits_io_compression(self):
         nside_coverage = 32
         nside_map = 1024
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
 
-        sparse_map[10_000_000: 11_000_000] = True
+        sparse_map[10_000_000:11_000_000] = True
 
         fname = os.path.join(self.test_dir, f"healsparse_bitpacked_{nside_map}.hsp")
         fname_nocomp = os.path.join(
@@ -1291,10 +1296,10 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         sparse_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
         sparse_map_bool = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_)
 
-        sparse_map[10000: 20000] = True
-        sparse_map_bool[10000: 20000] = True
-        sparse_map[1000000: 2000000] = True
-        sparse_map_bool[1000000: 2000000] = True
+        sparse_map[10000:20000] = True
+        sparse_map_bool[10000:20000] = True
+        sparse_map[1000000:2000000] = True
+        sparse_map_bool[1000000:2000000] = True
 
         fracdet = sparse_map.fracdet_map(128)
         fracdet_bool = sparse_map.fracdet_map(128)
@@ -1309,11 +1314,11 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
     def test_bit_packed_from_other_map(self):
         nside_coverage = 32
 
-        for mode in ['regular', 'wide', 'recarray']:
-            if mode == 'regular':
+        for mode in ["regular", "wide", "recarray"]:
+            if mode == "regular":
                 sparse_map = HealSparseMap.make_empty(nside_coverage, 2**15, np.bool_)
                 value = True
-            elif mode == 'wide':
+            elif mode == "wide":
                 sparse_map = HealSparseMap.make_empty(
                     nside_coverage,
                     2**15,
@@ -1322,17 +1327,17 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
                 )
                 value = np.zeros(2, dtype=np.uint8)
                 value[0] = 1
-            elif mode == 'recarray':
-                dtype = [('a', 'f8'), ('b', 'i4')]
+            elif mode == "recarray":
+                dtype = [("a", "f8"), ("b", "i4")]
                 sparse_map = HealSparseMap.make_empty(
                     nside_coverage,
                     2**15,
                     dtype,
-                    primary='a',
+                    primary="a",
                 )
                 value = np.zeros(1, dtype=dtype)
-                value['a'] = 1.0
-            elif mode == 'bitpacked':
+                value["a"] = 1.0
+            elif mode == "bitpacked":
                 sparse_map = HealSparseMap.make_empty(
                     nside_coverage,
                     2**15,
@@ -1341,8 +1346,8 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
                 )
                 value = True
 
-            sparse_map[0: 100] = value
-            sparse_map[10_000_000: 11_000_000] = value
+            sparse_map[0:100] = value
+            sparse_map[10_000_000:11_000_000] = value
 
             bitpacked_map = sparse_map.as_bit_packed_map()
 
@@ -1369,8 +1374,8 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         bitpacked_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
         bool_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_)
 
-        bitpacked_map[10000: 20000] = True
-        bool_map[10000: 20000] = True
+        bitpacked_map[10000:20000] = True
+        bool_map[10000:20000] = True
 
         bitpacked_map.update_values_pix(np.arange(15000, 25000), True, operation="and")
         bool_map.update_values_pix(np.arange(15000, 25000), True, operation="and")
@@ -1389,8 +1394,8 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
         bitpacked_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_, bit_packed=True)
         bool_map = HealSparseMap.make_empty(nside_coverage, nside_map, np.bool_)
 
-        bitpacked_map[10000: 20000] = True
-        bool_map[10000: 20000] = True
+        bitpacked_map[10000:20000] = True
+        bool_map[10000:20000] = True
 
         bitpacked_map.update_values_pix(np.arange(15000, 25000), True, operation="or")
         bool_map.update_values_pix(np.arange(15000, 25000), True, operation="or")
@@ -1411,5 +1416,5 @@ class HealSparseBitPackedTestCase(unittest.TestCase):
                 shutil.rmtree(self.test_dir, True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

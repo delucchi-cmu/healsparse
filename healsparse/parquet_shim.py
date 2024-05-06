@@ -1,11 +1,13 @@
 import warnings
+
 import numpy as np
 
 use_pyarrow = False
 try:
+    import pyarrow as pa
     from pyarrow import dataset
     from pyarrow.lib import ArrowInvalid
-    import pyarrow as pa
+
     use_pyarrow = True
 except ImportError:
     pass
@@ -46,12 +48,11 @@ def check_parquet_dataset(filepath):
     Warns if pyarrow is not installed.
     """
     if not use_pyarrow:
-        warnings.warn("Cannot access parquet datasets without pyarrow.",
-                      UserWarning)
+        warnings.warn("Cannot access parquet datasets without pyarrow.", UserWarning)
         return False
 
     try:
-        ds = dataset.dataset(filepath, format='parquet', partitioning='hive')
+        ds = dataset.dataset(filepath, format="parquet", partitioning="hive")
     except (IOError, ArrowInvalid):
         return False
 

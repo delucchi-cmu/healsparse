@@ -1,12 +1,13 @@
-import unittest
-import numpy.testing as testing
-import numpy as np
-import hpgeom as hpg
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
 import warnings
+
 import astropy.units as u
+import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
 from astropy.coordinates import SkyCoord
 
 import healsparse
@@ -20,12 +21,12 @@ class HealsparseMocTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 2048
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, bool)
-        sparse_map[30000: 70000] = True
+        sparse_map[30000:70000] = True
 
-        fname = os.path.join(self.test_dir, 'healsparse_moc.fits')
+        fname = os.path.join(self.test_dir, "healsparse_moc.fits")
 
         sparse_map.write_moc(fname)
 
@@ -49,13 +50,13 @@ class HealsparseMocTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 2048
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, bool)
-        sparse_map[30000: 70000] = True
-        sparse_map[80000: 90000] = True
+        sparse_map[30000:70000] = True
+        sparse_map[80000:90000] = True
 
-        fname = os.path.join(self.test_dir, 'healsparse_moc.fits')
+        fname = os.path.join(self.test_dir, "healsparse_moc.fits")
 
         sparse_map.write_moc(fname)
 
@@ -67,7 +68,7 @@ class HealsparseMocTestCase(unittest.TestCase):
 
         # There is no mocpy pixel lookup, we must go through ra/dec for some reason.
         ra, dec = hpg.pixel_to_angle(nside_map, np.arange(hpg.nside_to_npixel(nside_map)))
-        arr = moc.contains_lonlat(ra*u.degree, dec*u.degree)
+        arr = moc.contains_lonlat(ra * u.degree, dec * u.degree)
 
         testing.assert_array_equal(arr.nonzero()[0], sparse_map.valid_pixels)
 
@@ -83,17 +84,17 @@ class HealsparseMocTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 2048
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, bool)
-        sparse_map[30000: 70000] = True
-        sparse_map[80000: 90000] = True
+        sparse_map[30000:70000] = True
+        sparse_map[80000:90000] = True
 
-        fname = os.path.join(self.test_dir, 'mocpy_moc.fits')
+        fname = os.path.join(self.test_dir, "mocpy_moc.fits")
 
         # There is no mocpy pixel setting, we must go through ra/dec for some reason.
         ra, dec = sparse_map.valid_pixels_pos()
-        skycoords = SkyCoord(ra*u.degree, dec*u.degree)
+        skycoords = SkyCoord(ra * u.degree, dec * u.degree)
         moc = mocpy.MOC.from_skycoords(skycoords, int(np.round(np.log2(nside_map))))
 
         # Use pre_v2 to force NUNIQ ordering.
@@ -116,5 +117,5 @@ class HealsparseMocTestCase(unittest.TestCase):
                 shutil.rmtree(self.test_dir, True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

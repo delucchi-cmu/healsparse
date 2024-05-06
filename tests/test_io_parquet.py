@@ -1,16 +1,16 @@
-import unittest
-import numpy.testing as testing
-import numpy as np
-import hpgeom as hpg
-from numpy import random
-import tempfile
-import shutil
 import os
-import pytest
 import pathlib
+import shutil
+import tempfile
+import unittest
+
+import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
+import pytest
+from numpy import random
 
 import healsparse
-
 
 if not healsparse.parquet_shim.use_pyarrow:
     pytest.skip("Skipping pyarrow/parquet tests", allow_module_level=True)
@@ -30,20 +30,18 @@ class ParquetIoTestCase(unittest.TestCase):
         ra = np.random.random(n_rand) * 360.0
         dec = np.random.random(n_rand) * 180.0 - 90.0
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         # Generate a random map
 
         full_map = np.zeros(hpg.nside_to_npixel(nside_map)) + hpg.UNSEEN
-        full_map[0: 20000] = np.random.random(size=20000)
+        full_map[0:20000] = np.random.random(size=20000)
 
         ipnest = hpg.angle_to_pixel(nside_map, ra, dec)
         test_values = full_map[ipnest]
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_map,
-                                                         full_map.dtype)
-        u, = np.where(full_map > hpg.UNSEEN)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, full_map.dtype)
+        (u,) = np.where(full_map > hpg.UNSEEN)
         sparse_map[u] = full_map[u]
 
         for mode in ("str", "path"):
@@ -61,8 +59,7 @@ class ParquetIoTestCase(unittest.TestCase):
                 testing.assert_almost_equal(sparse_map.get_values_pix(ipnest), test_values)
 
                 # Try to read in healsparse format, non-unique pixels
-                self.assertRaises(RuntimeError, healsparse.HealSparseMap.read,
-                                  readfile, pixels=[0, 0])
+                self.assertRaises(RuntimeError, healsparse.HealSparseMap.read, readfile, pixels=[0, 0])
 
                 # Read in healsparse (two pixels)
                 sparse_map_small = healsparse.HealSparseMap.read(readfile, pixels=[0, 1])
@@ -73,7 +70,7 @@ class ParquetIoTestCase(unittest.TestCase):
 
                 # Test lookup of values in those two pixels
                 ipnestCov = np.right_shift(ipnest, sparse_map_small._cov_map.bit_shift)
-                outside_small, = np.where(ipnestCov > 1)
+                (outside_small,) = np.where(ipnestCov > 1)
                 test_values2 = test_values.copy()
                 test_values2[outside_small] = hpg.UNSEEN
 
@@ -99,11 +96,11 @@ class ParquetIoTestCase(unittest.TestCase):
         ra = np.random.random(n_rand) * 360.0
         dec = np.random.random(n_rand) * 180.0 - 90.0
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         # Create an empty map
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, np.float64)
-        fname = os.path.join(self.test_dir, 'healsparse_map_outoforder.hsparquet')
+        fname = os.path.join(self.test_dir, "healsparse_map_outoforder.hsparquet")
 
         # Fill it out of order
         pixel = np.arange(4000, 20000)
@@ -113,7 +110,7 @@ class ParquetIoTestCase(unittest.TestCase):
         values2 = np.random.random(pixel2.size)
         sparse_map.update_values_pix(pixel2, values2)
 
-        sparse_map.write(fname, format='parquet')
+        sparse_map.write(fname, format="parquet")
 
         # And read it in...
         sparse_map = healsparse.HealSparseMap.read(fname)
@@ -134,7 +131,7 @@ class ParquetIoTestCase(unittest.TestCase):
         # Test some values
         ipnest_cov = np.right_shift(ipnest, sparse_map_small._cov_map.bit_shift)
         test_values_small = test_map[ipnest]
-        outside_small, = np.where((ipnest_cov != 0) & (ipnest_cov != 1) & (ipnest_cov != 3179))
+        (outside_small,) = np.where((ipnest_cov != 0) & (ipnest_cov != 1) & (ipnest_cov != 3179))
         test_values_small[outside_small] = hpg.UNSEEN
 
         testing.assert_almost_equal(sparse_map_small.get_values_pix(ipnest), test_values_small)
@@ -148,24 +145,23 @@ class ParquetIoTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 64
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
-        fname = os.path.join(self.test_dir, 'sparsemap_with_header.hs')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
+        fname = os.path.join(self.test_dir, "sparsemap_with_header.hs")
 
         full_map = np.zeros(hpg.nside_to_npixel(nside_map)) + hpg.UNSEEN
-        full_map[0: 20000] = np.random.random(size=20000)
+        full_map[0:20000] = np.random.random(size=20000)
 
-        sparse_map = healsparse.HealSparseMap(healpix_map=full_map,
-                                              nside_coverage=nside_coverage, nest=True)
+        sparse_map = healsparse.HealSparseMap(healpix_map=full_map, nside_coverage=nside_coverage, nest=True)
 
         hdr = {}
-        hdr['TESTING'] = 1.0
+        hdr["TESTING"] = 1.0
 
         sparse_map.metadata = hdr
-        sparse_map.write(fname, format='parquet')
+        sparse_map.write(fname, format="parquet")
 
         ret_map, ret_hdr = healsparse.HealSparseMap.read(fname, header=True)
 
-        self.assertEqual(hdr['TESTING'], ret_hdr['TESTING'])
+        self.assertEqual(hdr["TESTING"], ret_hdr["TESTING"])
 
     def test_parquet_writeread_highres(self):
         """
@@ -173,21 +169,21 @@ class ParquetIoTestCase(unittest.TestCase):
         """
         random.seed(seed=12345)
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
-        fname = os.path.join(self.test_dir, 'healsparse_map.hsparquet')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
+        fname = os.path.join(self.test_dir, "healsparse_map.hsparquet")
 
         nside_coverage = 32
         nside_map = 2**17
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_sparse=nside_map,
-                                                         nside_coverage=nside_coverage,
-                                                         dtype=bool)
-        sparse_map[1_000_000: 20_000_000] = True
-        sparse_map[1_700_000_000: 1_720_000_000] = True
+        sparse_map = healsparse.HealSparseMap.make_empty(
+            nside_sparse=nside_map, nside_coverage=nside_coverage, dtype=bool
+        )
+        sparse_map[1_000_000:20_000_000] = True
+        sparse_map[1_700_000_000:1_720_000_000] = True
 
         valid_pixels = sparse_map.valid_pixels
 
-        sparse_map.write(fname, format='parquet')
+        sparse_map.write(fname, format="parquet")
 
         sparse_map2 = healsparse.HealSparseMap.read(fname)
         valid_pixels2 = sparse_map2.valid_pixels
@@ -197,7 +193,7 @@ class ParquetIoTestCase(unittest.TestCase):
 
         # And read pixel by pixel
         for covpix_map in sparse_map.get_covpix_maps():
-            covpix, = np.where(covpix_map.coverage_mask)
+            (covpix,) = np.where(covpix_map.coverage_mask)
 
             covpix_map2 = healsparse.HealSparseMap.read(fname, pixels=covpix)
 
@@ -212,50 +208,46 @@ class ParquetIoTestCase(unittest.TestCase):
         nside_coverage = 8
         nside_map = 64
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         # Generate a random map
 
         full_map = np.zeros(hpg.nside_to_npixel(nside_map)) + hpg.UNSEEN
-        full_map[0: 20000] = np.random.random(size=20000)
+        full_map[0:20000] = np.random.random(size=20000)
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_map,
-                                                         full_map.dtype)
-        u, = np.where(full_map > hpg.UNSEEN)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, full_map.dtype)
+        (u,) = np.where(full_map > hpg.UNSEEN)
         sparse_map[u] = full_map[u]
 
-        fname = os.path.join(self.test_dir, 'healsparse_map.hsparquet')
+        fname = os.path.join(self.test_dir, "healsparse_map.hsparquet")
 
         # This nside_io is larger than the nside_coverage
-        self.assertRaises(ValueError, sparse_map.write, fname,
-                          format='parquet', nside_io=16)
+        self.assertRaises(ValueError, sparse_map.write, fname, format="parquet", nside_io=16)
 
         sparse_map2 = healsparse.HealSparseMap.make_empty(64, nside_map, full_map.dtype)
         sparse_map2[u] = full_map[u]
 
         # This nside_io is larger than 16
-        self.assertRaises(ValueError, sparse_map2.write, fname,
-                          format='parquet', nside_io=32)
+        self.assertRaises(ValueError, sparse_map2.write, fname, format="parquet", nside_io=32)
 
     def test_parquet_writeread_bool(self):
         """Test writing and reading a bool map."""
         nside_coverage = 32
         nside_map = 64
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
         sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, bool)
-        sparse_map[30000: 30005] = True
+        sparse_map[30000:30005] = True
 
         # Write it to healsparse format
-        sparse_map.write(os.path.join(self.test_dir, 'healsparse_map.hsparquet'), format='parquet')
+        sparse_map.write(os.path.join(self.test_dir, "healsparse_map.hsparquet"), format="parquet")
 
         # Read in healsparse format (full map)
-        sparse_map2 = healsparse.HealSparseMap.read(os.path.join(self.test_dir, 'healsparse_map.hsparquet'))
+        sparse_map2 = healsparse.HealSparseMap.read(os.path.join(self.test_dir, "healsparse_map.hsparquet"))
 
         # Check that we can do a basic lookup
-        testing.assert_array_equal(sparse_map2[30000: 30005], True)
+        testing.assert_array_equal(sparse_map2[30000:30005], True)
 
         self.assertEqual(len(sparse_map2.valid_pixels), 5)
 
@@ -268,5 +260,5 @@ class ParquetIoTestCase(unittest.TestCase):
                 shutil.rmtree(self.test_dir, True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

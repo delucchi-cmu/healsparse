@@ -1,7 +1,9 @@
-from __future__ import division, absolute_import, print_function
-import numpy as np
-import hpgeom as hpg
+from __future__ import absolute_import, division, print_function
+
 import copy
+
+import hpgeom as hpg
+import numpy as np
 
 from .utils import _compute_bitshift
 
@@ -44,9 +46,9 @@ def make_uniform_randoms_fast(sparse_map, n_random, nside_randoms=2**23, rng=Non
     # The sub-pixels are random from bit_shift
     sub_pixels = rng.randint(0, high=2**bit_shift - 1, size=n_random)
 
-    ra_rand, dec_rand = hpg.pixel_to_angle(nside_randoms,
-                                           np.left_shift(ipnest_coarse, bit_shift) + sub_pixels,
-                                           lonlat=True, nest=True)
+    ra_rand, dec_rand = hpg.pixel_to_angle(
+        nside_randoms, np.left_shift(ipnest_coarse, bit_shift) + sub_pixels, lonlat=True, nest=True
+    )
 
     return ra_rand, dec_rand
 
@@ -82,30 +84,33 @@ def make_uniform_randoms(sparse_map, n_random, rng=None):
 
     # What is the z/phi range of the coverage map?
     cov_mask = sparse_map.coverage_mask
-    cov_pix, = np.where(cov_mask)
+    (cov_pix,) = np.where(cov_mask)
 
     # Get range of coverage pixels
     cov_theta, cov_phi = hpg.pixel_to_angle(sparse_map.nside_coverage, cov_pix, nest=True, lonlat=False)
 
     extra_boundary = 2.0 * hpg.nside_to_resolution(sparse_map.nside_coverage)
 
-    ra_range = np.clip([np.min(cov_phi - extra_boundary),
-                        np.max(cov_phi + extra_boundary)],
-                       0.0, 2.0 * np.pi)
-    dec_range = np.clip([np.min((np.pi/2. - cov_theta) - extra_boundary),
-                         np.max((np.pi/2. - cov_theta) + extra_boundary)],
-                        -np.pi/2., np.pi/2.)
+    ra_range = np.clip([np.min(cov_phi - extra_boundary), np.max(cov_phi + extra_boundary)], 0.0, 2.0 * np.pi)
+    dec_range = np.clip(
+        [
+            np.min((np.pi / 2.0 - cov_theta) - extra_boundary),
+            np.max((np.pi / 2.0 - cov_theta) + extra_boundary),
+        ],
+        -np.pi / 2.0,
+        np.pi / 2.0,
+    )
 
     # Check if we can do things more efficiently by rotating 180 degrees
     # for maps that wrap 0
     rotated = False
     cov_phi_rot = cov_phi + np.pi
-    test, = np.where(cov_phi_rot > 2.0 * np.pi)
+    (test,) = np.where(cov_phi_rot > 2.0 * np.pi)
     cov_phi_rot[test] -= 2.0 * np.pi
-    ra_range_rot = np.clip([np.min(cov_phi_rot - extra_boundary),
-                            np.max(cov_phi_rot + extra_boundary)],
-                           0.0, 2.0 * np.pi)
-    if ((ra_range_rot[1] - ra_range_rot[0]) < ((ra_range[1] - ra_range[0]) - 0.1)):
+    ra_range_rot = np.clip(
+        [np.min(cov_phi_rot - extra_boundary), np.max(cov_phi_rot + extra_boundary)], 0.0, 2.0 * np.pi
+    )
+    if (ra_range_rot[1] - ra_range_rot[0]) < ((ra_range[1] - ra_range[0]) - 0.1):
         # This is a more efficient range in rotated space
         ra_range = ra_range_rot
         rotated = True
@@ -122,7 +127,7 @@ def make_uniform_randoms(sparse_map, n_random, rng=None):
 
     # We have to have a loop here because we don't know
     # how many points will fall in the mask
-    while (n_left > 0):
+    while n_left > 0:
         # Limit the number of points in each loop
         n_gen = np.clip(n_left * 2, min_gen, max_gen)
 
@@ -137,15 +142,16 @@ def make_uniform_randoms(sparse_map, n_random, rng=None):
             ra_rand_temp -= 180.0
             ra_rand_temp[ra_rand_temp < 0.0] += 360.0
 
-        valid, = np.where(sparse_map.get_values_pos(ra_rand_temp, dec_rand_temp,
-                                                    lonlat=True, valid_mask=True))
+        (valid,) = np.where(
+            sparse_map.get_values_pos(ra_rand_temp, dec_rand_temp, lonlat=True, valid_mask=True)
+        )
         n_valid = valid.size
 
         if n_valid > n_left:
             n_valid = n_left
 
-        ra_rand[ctr: ctr + n_valid] = ra_rand_temp[valid[0: n_valid]]
-        dec_rand[ctr: ctr + n_valid] = dec_rand_temp[valid[0: n_valid]]
+        ra_rand[ctr : ctr + n_valid] = ra_rand_temp[valid[0:n_valid]]
+        dec_rand[ctr : ctr + n_valid] = dec_rand_temp[valid[0:n_valid]]
 
         ctr += n_valid
         n_left -= n_valid

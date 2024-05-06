@@ -1,7 +1,8 @@
 import unittest
-import numpy.testing as testing
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
 
 import healsparse
 
@@ -17,7 +18,7 @@ class LookupTestCase(unittest.TestCase):
         nside_map = 1024
 
         full_map = np.zeros(hpg.nside_to_npixel(nside_map)) + hpg.UNSEEN
-        full_map[0: 200000] = np.random.random(size=200000)
+        full_map[0:200000] = np.random.random(size=200000)
 
         sparse_map = healsparse.HealSparseMap(healpix_map=full_map, nside_coverage=nside_coverage)
 
@@ -46,10 +47,7 @@ class LookupTestCase(unittest.TestCase):
         testing.assert_array_almost_equal(comp_values, test_values)
 
         # Test pixel lookup (higher nside)
-        comp_values = sparse_map.get_values_pix(
-            hpg.angle_to_pixel(4096, ra, dec),
-            nside=4096
-        )
+        comp_values = sparse_map.get_values_pix(hpg.angle_to_pixel(4096, ra, dec), nside=4096)
         testing.assert_array_almost_equal(comp_values, test_values)
 
         # Test pixel lookup (lower nside)
@@ -75,13 +73,12 @@ class LookupTestCase(unittest.TestCase):
         testing.assert_array_almost_equal(dec_sp, _dec_sp)
 
         # Test position of valid pixels and valid pixels
-        valid_pixels, ra_sp, dec_sp = sparse_map.valid_pixels_pos(lonlat=True,
-                                                                  return_pixels=True)
+        valid_pixels, ra_sp, dec_sp = sparse_map.valid_pixels_pos(lonlat=True, return_pixels=True)
         _ra_sp, _dec_sp = hpg.pixel_to_angle(nside_map, np.where(full_map > hpg.UNSEEN)[0])
         testing.assert_array_almost_equal(ra_sp, _ra_sp)
         testing.assert_array_almost_equal(dec_sp, _dec_sp)
         testing.assert_array_equal(valid_pixels, np.where(full_map > hpg.UNSEEN)[0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

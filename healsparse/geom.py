@@ -1,10 +1,12 @@
-import numpy as np
-import hpgeom as hpg
-from .utils import is_integer_value
 import numbers
 
+import hpgeom as hpg
+import numpy as np
 
-def realize_geom(geom, smap, type='or'):
+from .utils import is_integer_value
+
+
+def realize_geom(geom, smap, type="or"):
     """
     Realize geometry objects in a map.
 
@@ -18,11 +20,11 @@ def realize_geom(geom, smap, type='or'):
         Way to combine the list of geometric objects.
         Currently only supports ``or``.
     """
-    if type not in ['or']:
-        raise ValueError('Type of composition must be ``or``')
+    if type not in ["or"]:
+        raise ValueError("Type of composition must be ``or``")
 
     if not smap.is_integer_map:
-        raise ValueError(f'Can only {type} geometry objects into an integer map')
+        raise ValueError(f"Can only {type} geometry objects into an integer map")
 
     if not isinstance(geom, (list, tuple)):
         geom = [geom]
@@ -49,15 +51,13 @@ def realize_geom(geom, smap, type='or'):
 def _check_int(x):
     check = isinstance(x, numbers.Integral)
     if not check:
-        raise ValueError('value must be integer type, '
-                         'got %s' % x)
+        raise ValueError("value must be integer type, " "got %s" % x)
 
 
 def _check_int_size(value, dtype):
     ii = np.iinfo(dtype)
     if value < ii.min or value > ii.max:
-        raise ValueError('value %d outside range [%d, %d]' %
-                         (value, ii.min, ii.max))
+        raise ValueError("value %d outside range [%d, %d]" % (value, ii.min, ii.max))
 
 
 class GeomBase(object):
@@ -187,15 +187,17 @@ class GeomBase(object):
                 wide_mask_maxbits = np.max(self._value)
             else:
                 if wide_mask_maxbits < np.max(self._value):
-                    raise ValueError("wide_mask_maxbits (%d) is less than maximum bit value (%d)" %
-                                     (wide_mask_maxbits, np.max(self._value)))
+                    raise ValueError(
+                        "wide_mask_maxbits (%d) is less than maximum bit value (%d)"
+                        % (wide_mask_maxbits, np.max(self._value))
+                    )
 
         smap = HealSparseMap.make_empty(
             nside_coverage=nside_coverage,
             nside_sparse=nside_sparse,
             dtype=dtype,
             sentinel=sentinel,
-            wide_mask_maxbits=wide_mask_maxbits
+            wide_mask_maxbits=wide_mask_maxbits,
         )
         pixels = self.get_pixels(nside=nside_sparse)
 
@@ -234,9 +236,12 @@ class GeomBase(object):
         else:
             wide_mask_maxbits = None
 
-        return self.get_map(nside_coverage=sparseMap.nside_coverage,
-                            nside_sparse=sparseMap.nside_sparse,
-                            dtype=sparseMap.dtype, wide_mask_maxbits=wide_mask_maxbits)
+        return self.get_map(
+            nside_coverage=sparseMap.nside_coverage,
+            nside_sparse=sparseMap.nside_sparse,
+            dtype=sparseMap.dtype,
+            wide_mask_maxbits=wide_mask_maxbits,
+        )
 
 
 class Circle(GeomBase):
@@ -256,6 +261,7 @@ class Circle(GeomBase):
         nside and then these pixels will be 'upgraded' to the resolution
         of the map.
     """
+
     def __init__(self, *, ra, dec, radius, value, nside_render=None):
         self._ra = ra
         self._dec = dec
@@ -266,7 +272,7 @@ class Circle(GeomBase):
         sc_dec = np.isscalar(self._dec)
         sc_radius = np.isscalar(self._radius)
         if (not sc_ra) or (not sc_dec) or (not sc_radius):
-            raise ValueError('Circle only accepts scalar inputs for ra, dec, and radius')
+            raise ValueError("Circle only accepts scalar inputs for ra, dec, and radius")
 
     @property
     def ra(self):
@@ -301,7 +307,7 @@ class Circle(GeomBase):
         )
 
     def __repr__(self):
-        s = 'Circle(ra=%.16g, dec=%.16g, radius=%.16g, value=%s, nside_render=%s)'
+        s = "Circle(ra=%.16g, dec=%.16g, radius=%.16g, value=%s, nside_render=%s)"
         return s % (self._ra, self._dec, self._radius, repr(self._value), repr(self._nside_render))
 
 
@@ -320,14 +326,15 @@ class Polygon(GeomBase):
     value : number
         Value for pixels in the map
     """
+
     def __init__(self, *, ra, dec, value, nside_render=None):
         ra = np.array(ra, ndmin=1)
         dec = np.array(dec, ndmin=1)
 
         if ra.size != dec.size:
-            raise ValueError('ra/dec are different sizes')
+            raise ValueError("ra/dec are different sizes")
         if ra.size < 3:
-            raise ValueError('A polygon must have at least 3 vertices')
+            raise ValueError("A polygon must have at least 3 vertices")
         self._ra = ra
         self._dec = dec
         self._vertices = hpg.angle_to_vector(ra, dec, lonlat=True)
@@ -371,7 +378,7 @@ class Polygon(GeomBase):
         ras = repr(self._ra)
         decs = repr(self._dec)
 
-        s = 'Polygon(ra=%s, dec=%s, value=%s, nside_render=%s)'
+        s = "Polygon(ra=%s, dec=%s, value=%s, nside_render=%s)"
         return s % (ras, decs, repr(self._value), repr(self._nside_render))
 
 
@@ -394,6 +401,7 @@ class Ellipse(GeomBase):
     value : number
         Value for pixels in the map (scalar or list of bits for `wide_mask`).
     """
+
     def __init__(self, *, ra, dec, semi_major, semi_minor, alpha, value, nside_render=None):
         self._ra = ra
         self._dec = dec
@@ -409,7 +417,7 @@ class Ellipse(GeomBase):
         sc_alpha = np.isscalar(self._alpha)
         if not sc_ra or not sc_dec or not sc_semi_major or not sc_semi_minor or not sc_alpha:
             raise ValueError(
-                'Ellipse only accepts scalar inputs for ra, dec, semi_major, semi_minor, and alpha.'
+                "Ellipse only accepts scalar inputs for ra, dec, semi_major, semi_minor, and alpha."
             )
 
     @property
@@ -461,10 +469,19 @@ class Ellipse(GeomBase):
         )
 
     def __repr__(self):
-        s = ("Ellipse(ra=%.16g, dec=%16g, semi_major=%16g, semi_minor=%16g, alpha=%16g, value=%s, "
-             "nside_render=%s)")
-        return s % (self._ra, self._dec, self._semi_major, self._semi_minor, self._alpha, repr(self._value),
-                    repr(self._nside_render))
+        s = (
+            "Ellipse(ra=%.16g, dec=%16g, semi_major=%16g, semi_minor=%16g, alpha=%16g, value=%s, "
+            "nside_render=%s)"
+        )
+        return s % (
+            self._ra,
+            self._dec,
+            self._semi_major,
+            self._semi_minor,
+            self._alpha,
+            repr(self._value),
+            repr(self._nside_render),
+        )
 
 
 class Box(GeomBase):
@@ -492,6 +509,7 @@ class Box(GeomBase):
         nside and then these pixels will be 'upgraded' to the resolution
         of the map.
     """
+
     def __init__(self, *, ra1, ra2, dec1, dec2, value, nside_render=None):
         self._ra1 = ra1
         self._ra2 = ra2

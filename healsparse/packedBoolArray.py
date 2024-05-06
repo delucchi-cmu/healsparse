@@ -1,5 +1,6 @@
-import numpy as np
 import numbers
+
+import numpy as np
 
 from .utils import is_integer_value
 
@@ -27,6 +28,7 @@ class _PackedBoolArray:
         ([start: stop]). Used for unaligned slices and arrays with
         length not divisible by 8.
     """
+
     def __init__(self, size=None, data_buffer=None, start_index=None, stop_index=None):
         if size is not None and data_buffer is not None:
             raise ValueError("May only specify one of size or data_buffer.")
@@ -45,9 +47,9 @@ class _PackedBoolArray:
             self._data = data_buffer
 
             if stop_index is None:
-                self._stop_index = len(data_buffer)*8
+                self._stop_index = len(data_buffer) * 8
             else:
-                intrinsic_size = len(data_buffer)*8
+                intrinsic_size = len(data_buffer) * 8
                 if stop_index < (intrinsic_size - 7) or stop_index > intrinsic_size:
                     raise ValueError("stop_index must be within 8 of the intrinsic size.")
                 self._stop_index = stop_index
@@ -118,7 +120,7 @@ class _PackedBoolArray:
 
     @property
     def shape(self):
-        return (self.size, )
+        return (self.size,)
 
     @property
     def size(self):
@@ -189,8 +191,10 @@ class _PackedBoolArray:
     @property
     def data_array(self):
         if self._start_index != 0 or self._stop_index != self.size:
-            raise NotImplementedError("_PackedBoolArray does not support extracting the "
-                                      "data_array from an unaligned _PackedBoolArray.")
+            raise NotImplementedError(
+                "_PackedBoolArray does not support extracting the "
+                "data_array from an unaligned _PackedBoolArray."
+            )
 
         return self._data
 
@@ -248,7 +252,7 @@ class _PackedBoolArray:
                 data_start = (key.start + self._start_index) // 8
                 start_index = (key.start + self._start_index) % 8
                 # Stop index also needs to be adjusted.
-                stop_index -= data_start*8
+                stop_index -= data_start * 8
             else:
                 # Start at the beginning of the data buffer, but
                 # use the original start_index.
@@ -273,7 +277,7 @@ class _PackedBoolArray:
                     offset_value = 1
 
                 data_stop = (_stop + self._start_index) // 8 + offset_value
-                stop_index = (data_stop - data_start - offset_value)*8 + (_stop + self._start_index) % 8
+                stop_index = (data_stop - data_start - offset_value) * 8 + (_stop + self._start_index) % 8
             else:
                 # Stop at the end of the data buffer, and use
                 # the original stop index (though this may have
@@ -285,7 +289,7 @@ class _PackedBoolArray:
                     raise NotImplementedError("Slicing with a step that is not 1 is not supported.")
 
             return _PackedBoolArray(
-                data_buffer=self._data[data_start: data_stop],
+                data_buffer=self._data[data_start:data_stop],
                 start_index=start_index,
                 stop_index=stop_index,
             )
@@ -298,8 +302,7 @@ class _PackedBoolArray:
                 raise IndexError("Numpy array indices must be integers for __getitem__")
             return self._test_bits_at_locs(indices)
         else:
-            raise IndexError("Illegal index type (%s) for __getitem__ in _PackedBoolArray." %
-                             (key.__class__))
+            raise IndexError("Illegal index type (%s) for __getitem__ in _PackedBoolArray." % (key.__class__))
 
     def __setitem__(self, key, value):
         if isinstance(key, numbers.Integral):
@@ -324,10 +327,10 @@ class _PackedBoolArray:
             # Check the value.
             if isinstance(value, (bool, np.bool_)):
                 if first_unpacked[0] is not None:
-                    first_unpacked[0][first_unpacked[1]: first_unpacked[2]] = value
+                    first_unpacked[0][first_unpacked[1] : first_unpacked[2]] = value
                     temp_pba._data[0] = np.packbits(first_unpacked[0], bitorder="little")[0]
                 if last_unpacked[0] is not None:
-                    last_unpacked[0][last_unpacked[1]: last_unpacked[2]] = value
+                    last_unpacked[0][last_unpacked[1] : last_unpacked[2]] = value
                     temp_pba._data[-1] = np.packbits(last_unpacked[0], bitorder="little")[0]
                 if mid_data is not None:
                     mid_data[:] = self._uint8_truefalse[bool(value)]
@@ -344,21 +347,26 @@ class _PackedBoolArray:
                         start_index=temp_pba._start_index,
                     )
                 else:
-                    if temp_pba._start_index != value._start_index or \
-                       temp_pba._stop_index != value._stop_index:
+                    if (
+                        temp_pba._start_index != value._start_index
+                        or temp_pba._stop_index != value._stop_index
+                    ):
                         raise ValueError("Value _PackedBoolArray must be aligned with slice.")
                     _value = value
 
-                value_first_unpacked, value_mid_data, value_last_unpacked = \
-                    _value._extract_first_middle_last(mask_extra=False)
+                value_first_unpacked, value_mid_data, value_last_unpacked = _value._extract_first_middle_last(
+                    mask_extra=False
+                )
 
                 if first_unpacked[0] is not None:
-                    first_unpacked[0][first_unpacked[1]: first_unpacked[2]] = \
-                        value_first_unpacked[0][first_unpacked[1]: first_unpacked[2]]
+                    first_unpacked[0][first_unpacked[1] : first_unpacked[2]] = value_first_unpacked[0][
+                        first_unpacked[1] : first_unpacked[2]
+                    ]
                     temp_pba._data[0] = np.packbits(first_unpacked[0], bitorder="little")[0]
                 if last_unpacked[0] is not None:
-                    last_unpacked[0][last_unpacked[1]: last_unpacked[2]] = \
-                        value_last_unpacked[0][last_unpacked[1]: last_unpacked[2]]
+                    last_unpacked[0][last_unpacked[1] : last_unpacked[2]] = value_last_unpacked[0][
+                        last_unpacked[1] : last_unpacked[2]
+                    ]
                     temp_pba._data[-1] = np.packbits(last_unpacked[0], bitorder="little")[0]
                 if mid_data is not None:
                     mid_data[:] = value_mid_data[:]
@@ -386,12 +394,11 @@ class _PackedBoolArray:
             else:
                 raise ValueError("Can only set to bool or array of bools")
         else:
-            raise IndexError("Illegal index type (%s) for __setitem__ in _PackedBoolArray." %
-                             (key.__class__))
+            raise IndexError("Illegal index type (%s) for __setitem__ in _PackedBoolArray." % (key.__class__))
 
     def __array__(self):
         array = np.unpackbits(self._data, bitorder="little").astype(np.bool_)
-        return array[self._start_index: self._stop_index]
+        return array[self._start_index : self._stop_index]
 
     def __iand__(self, other):
         if isinstance(other, (bool, np.bool_)):
@@ -488,28 +495,28 @@ class _PackedBoolArray:
         """
         ndata = len(self._data)
 
-        if self._start_index == 0 and self._stop_index == ndata*8:
+        if self._start_index == 0 and self._stop_index == ndata * 8:
             # This is a fully aligned buffer.
             return (None, -1, -1), self._data, (None, -1, -1)
         elif self._start_index == 0:
             # This is aligned at 0.
             last_unpacked = np.unpackbits(self._data[-1], bitorder="little").astype(np.bool_)
             if mask_extra:
-                last_unpacked[self._stop_index % 8:] = False
+                last_unpacked[self._stop_index % 8 :] = False
 
             if self._stop_index < 8:
                 # This is a short array, less than 8 bits.
                 return (None, -1, -1), None, (last_unpacked, None, self._stop_index % 8)
             else:
                 # This is a longer array, more than 8 bits.
-                return (None, -1, -1), self._data[0: -1], (last_unpacked, None, self._stop_index % 8)
+                return (None, -1, -1), self._data[0:-1], (last_unpacked, None, self._stop_index % 8)
         else:
             # This is not aligned at 0.
             first_unpacked = np.unpackbits(self._data[0], bitorder="little").astype(np.bool_)
             if mask_extra:
-                first_unpacked[0: self._start_index] = False
+                first_unpacked[0 : self._start_index] = False
 
-            if self._stop_index == ndata*8:
+            if self._stop_index == ndata * 8:
                 # Aligned at the end.
                 if ndata == 1:
                     # This is a short array.
@@ -523,16 +530,16 @@ class _PackedBoolArray:
                     # This is a very short array that is unaligned at both
                     # the front and the back.
                     if mask_extra:
-                        first_unpacked[self._stop_index:] = False
+                        first_unpacked[self._stop_index :] = False
 
                     return (first_unpacked, self._start_index, self._stop_index), None, (None, -1, -1)
                 else:
                     # This is a long array, we need the last unpacked.
                     last_unpacked = np.unpackbits(self._data[-1], bitorder="little").astype(np.bool_)
                     if mask_extra:
-                        last_unpacked[self._stop_index % 8:] = False
+                        last_unpacked[self._stop_index % 8 :] = False
 
-                    mid_data = self._data[1: -1]
+                    mid_data = self._data[1:-1]
                     if len(mid_data) == 0:
                         mid_data = None
                     return (
@@ -557,25 +564,27 @@ class _PackedBoolArray:
 
         if first_unpacked[0] is not None:
             if operation == "and":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] &= other
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] &= other
             elif operation == "or":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] |= other
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] |= other
             elif operation == "xor":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] ^= other
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] ^= other
             elif operation == "invert":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] = \
-                    ~first_unpacked[0][first_unpacked[1]: first_unpacked[2]]
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] = ~first_unpacked[0][
+                    first_unpacked[1] : first_unpacked[2]
+                ]
             self._data[0] = np.packbits(first_unpacked[0], bitorder="little")[0]
         if last_unpacked[0] is not None:
             if operation == "and":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] &= other
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] &= other
             elif operation == "or":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] |= other
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] |= other
             elif operation == "xor":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] ^= other
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] ^= other
             elif operation == "invert":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] = \
-                    ~last_unpacked[0][last_unpacked[1]: last_unpacked[2]]
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] = ~last_unpacked[0][
+                    last_unpacked[1] : last_unpacked[2]
+                ]
             self._data[-1] = np.packbits(last_unpacked[0], bitorder="little")[0]
         if mid_data is not None:
             if operation == "and":
@@ -604,25 +613,31 @@ class _PackedBoolArray:
 
         if first_unpacked[0] is not None:
             if operation == "and":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] &= \
-                    o_first_unpacked[0][first_unpacked[1]: first_unpacked[2]]
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] &= o_first_unpacked[0][
+                    first_unpacked[1] : first_unpacked[2]
+                ]
             elif operation == "or":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] |= \
-                    o_first_unpacked[0][first_unpacked[1]: first_unpacked[2]]
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] |= o_first_unpacked[0][
+                    first_unpacked[1] : first_unpacked[2]
+                ]
             elif operation == "xor":
-                first_unpacked[0][first_unpacked[1]: first_unpacked[2]] ^= \
-                    o_first_unpacked[0][first_unpacked[1]: first_unpacked[2]]
+                first_unpacked[0][first_unpacked[1] : first_unpacked[2]] ^= o_first_unpacked[0][
+                    first_unpacked[1] : first_unpacked[2]
+                ]
             self._data[0] = np.packbits(first_unpacked[0], bitorder="little")[0]
         if last_unpacked[0] is not None:
             if operation == "and":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] &= \
-                    o_last_unpacked[0][last_unpacked[1]: last_unpacked[2]]
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] &= o_last_unpacked[0][
+                    last_unpacked[1] : last_unpacked[2]
+                ]
             elif operation == "or":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] |= \
-                    o_last_unpacked[0][last_unpacked[1]: last_unpacked[2]]
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] |= o_last_unpacked[0][
+                    last_unpacked[1] : last_unpacked[2]
+                ]
             elif operation == "xor":
-                last_unpacked[0][last_unpacked[1]: last_unpacked[2]] ^= \
-                    o_last_unpacked[0][last_unpacked[1]: last_unpacked[2]]
+                last_unpacked[0][last_unpacked[1] : last_unpacked[2]] ^= o_last_unpacked[0][
+                    last_unpacked[1] : last_unpacked[2]
+                ]
             self._data[-1] = np.packbits(last_unpacked[0], bitorder="little")[0]
         if mid_data is not None:
             if operation == "and":

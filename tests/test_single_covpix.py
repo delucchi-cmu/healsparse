@@ -1,6 +1,8 @@
 import unittest
-import numpy.testing as testing
+
 import numpy as np
+import numpy.testing as testing
+
 import healsparse
 from healsparse import WIDE_MASK
 
@@ -13,17 +15,15 @@ class SingleCovpixTestCase(unittest.TestCase):
         nside_sparse = 1024
         nside_coverage = 32
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_sparse,
-                                                         np.float32)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_sparse, np.float32)
         pixels = np.array([1000, 100000, 10000000])
         sparse_map[pixels] = 1.0
 
-        cov_pixels, = np.where(sparse_map.coverage_mask)
+        (cov_pixels,) = np.where(sparse_map.coverage_mask)
 
         for i, cov_pixel in enumerate(cov_pixels):
             sub_map = sparse_map.get_single_covpix_map(cov_pixel)
-            sub_cov_pixels, = np.where(sub_map.coverage_mask)
+            (sub_cov_pixels,) = np.where(sub_map.coverage_mask)
             self.assertEqual(len(sub_cov_pixels), 1)
             self.assertEqual(sub_cov_pixels[0], cov_pixel)
             self.assertEqual(sub_map.n_valid, 1)
@@ -41,28 +41,24 @@ class SingleCovpixTestCase(unittest.TestCase):
         """
         nside_sparse = 1024
         nside_coverage = 32
-        dtype = [('a', 'f4'),
-                 ('b', 'i4')]
+        dtype = [("a", "f4"), ("b", "i4")]
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_sparse,
-                                                         dtype,
-                                                         primary='a')
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_sparse, dtype, primary="a")
         pixels = np.array([1000, 100000, 10000000])
         value = np.ones(1, dtype=dtype)
         sparse_map[pixels] = value
 
-        cov_pixels, = np.where(sparse_map.coverage_mask)
+        (cov_pixels,) = np.where(sparse_map.coverage_mask)
 
         for i, cov_pixel in enumerate(cov_pixels):
             sub_map = sparse_map.get_single_covpix_map(cov_pixel)
-            sub_cov_pixels, = np.where(sub_map.coverage_mask)
+            (sub_cov_pixels,) = np.where(sub_map.coverage_mask)
             self.assertEqual(len(sub_cov_pixels), 1)
             self.assertEqual(sub_cov_pixels[0], cov_pixel)
             self.assertEqual(sub_map.n_valid, 1)
             testing.assert_array_equal(sub_map.valid_pixels, pixels[i])
-            testing.assert_almost_equal(sub_map[pixels[i]]['a'], 1.0)
-            self.assertEqual(sub_map[pixels[i]]['b'], 1)
+            testing.assert_almost_equal(sub_map[pixels[i]]["a"], 1.0)
+            self.assertEqual(sub_map[pixels[i]]["b"], 1)
 
             # Test getting the cov_pixel valid_pixels from the full map.
             sub_valid_pixels = sparse_map.valid_pixels_single_covpix(cov_pixel)
@@ -76,20 +72,19 @@ class SingleCovpixTestCase(unittest.TestCase):
         nside_sparse = 1024
         nside_coverage = 32
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_sparse,
-                                                         WIDE_MASK,
-                                                         wide_mask_maxbits=15)
+        sparse_map = healsparse.HealSparseMap.make_empty(
+            nside_coverage, nside_sparse, WIDE_MASK, wide_mask_maxbits=15
+        )
 
         pixels = np.array([1000, 100000, 10000000])
         sparse_map.set_bits_pix(pixels, [4])
         sparse_map.set_bits_pix(pixels, [13])
 
-        cov_pixels, = np.where(sparse_map.coverage_mask)
+        (cov_pixels,) = np.where(sparse_map.coverage_mask)
 
         for i, cov_pixel in enumerate(cov_pixels):
             sub_map = sparse_map.get_single_covpix_map(cov_pixel)
-            sub_cov_pixels, = np.where(sub_map.coverage_mask)
+            (sub_cov_pixels,) = np.where(sub_map.coverage_mask)
             self.assertEqual(len(sub_cov_pixels), 1)
             self.assertEqual(sub_cov_pixels[0], cov_pixel)
             self.assertEqual(sub_map.n_valid, 1)
@@ -109,14 +104,12 @@ class SingleCovpixTestCase(unittest.TestCase):
         nside_sparse = 1024
         nside_coverage = 32
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_sparse,
-                                                         np.float32)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_sparse, np.float32)
         pixels = np.array([1000, 100000, 10000000])
         sparse_map[pixels] = 1.0
 
         sub_map = sparse_map.get_single_covpix_map(40)
-        sub_cov_pixels, = np.where(sub_map.coverage_mask)
+        (sub_cov_pixels,) = np.where(sub_map.coverage_mask)
         self.assertEqual(len(sub_cov_pixels), 0)
         self.assertEqual(sub_map.n_valid, 0)
         self.assertEqual(len(sub_map.valid_pixels), 0)
@@ -131,16 +124,14 @@ class SingleCovpixTestCase(unittest.TestCase):
         nside_sparse = 1024
         nside_coverage = 32
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage,
-                                                         nside_sparse,
-                                                         np.float32)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_sparse, np.float32)
         pixels = np.array([1000, 100000, 10000000])
         sparse_map[pixels] = 1.0
 
-        cov_pixels, = np.where(sparse_map.coverage_mask)
+        (cov_pixels,) = np.where(sparse_map.coverage_mask)
 
         for i, sub_map in enumerate(sparse_map.get_covpix_maps()):
-            sub_cov_pixels, = np.where(sub_map.coverage_mask)
+            (sub_cov_pixels,) = np.where(sub_map.coverage_mask)
 
             self.assertEqual(len(sub_cov_pixels), 1)
             self.assertEqual(sub_cov_pixels[0], cov_pixels[i])
@@ -153,5 +144,5 @@ class SingleCovpixTestCase(unittest.TestCase):
             testing.assert_array_equal(sub_valid_pixels, pixels[i])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

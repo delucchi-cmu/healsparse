@@ -1,6 +1,7 @@
 import unittest
-import numpy.testing as testing
+
 import numpy as np
+import numpy.testing as testing
 
 import healsparse
 from healsparse import WIDE_MASK
@@ -54,14 +55,14 @@ class EmptyPixelsTestCase(unittest.TestCase):
 
         empty_arr = np.array([], dtype=m.dtype)
 
-        testing.assert_array_equal(m[0: 0], empty_arr)
+        testing.assert_array_equal(m[0:0], empty_arr)
 
     def test_emptypixels_get_by_slice_widemask(self):
         """
         Test getting an empty pixel list by slice (wide mask).
         """
         m = healsparse.HealSparseMap.make_empty(32, 512, WIDE_MASK, wide_mask_maxbits=16)
-        testing.assert_array_equal(m[0: 0], np.zeros((0, 2), dtype=np.uint8))
+        testing.assert_array_equal(m[0:0], np.zeros((0, 2), dtype=np.uint8))
 
     def test_emptypixels_update_values(self):
         """
@@ -110,5 +111,5 @@ class EmptyPixelsTestCase(unittest.TestCase):
         self.assertWarns(UserWarning, m.__setitem__, [], np.zeros(5, dtype=np.int32))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

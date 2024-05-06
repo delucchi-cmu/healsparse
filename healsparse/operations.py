@@ -1,8 +1,8 @@
-import numpy as np
 import hpgeom as hpg
+import numpy as np
 
-from .healSparseMap import HealSparseMap
 from .healSparseCoverage import HealSparseCoverage
+from .healSparseMap import HealSparseMap
 
 
 def sum_union(map_list):
@@ -400,13 +400,13 @@ def ufunc_union(map_list, func, filler_value=0):
 
 
 def _apply_operation(
-        map_list,
-        func,
-        filler_value,
-        union=False,
-        int_only=False,
-        fill_with_first_map=False,
-        dtype_out=None,
+    map_list,
+    func,
+    filler_value,
+    union=False,
+    int_only=False,
+    fill_with_first_map=False,
+    dtype_out=None,
 ):
     """
     Apply a generic arithmetic function.
@@ -467,9 +467,9 @@ def _apply_operation(
             is_wide_mask = m._is_wide_mask
             wide_mask_width = m._wide_mask_width
         else:
-            if (nside_coverage != m.nside_coverage or nside_sparse != m._nside_sparse):
+            if nside_coverage != m.nside_coverage or nside_sparse != m._nside_sparse:
                 raise RuntimeError("Cannot apply %s to maps with different coverage or map nsides" % (name))
-            if (is_wide_mask != m._is_wide_mask or wide_mask_width != m._wide_mask_width):
+            if is_wide_mask != m._is_wide_mask or wide_mask_width != m._wide_mask_width:
                 raise RuntimeError("Can only apply %s to wide_mask maps with same width" % (name))
 
     if is_wide_mask and fill_with_first_map:
@@ -486,21 +486,21 @@ def _apply_operation(
         for m in map_list[1:]:
             combined_cov_mask &= m.coverage_mask
 
-    cov_pix, = np.where(combined_cov_mask)
+    (cov_pix,) = np.where(combined_cov_mask)
 
     if cov_pix.size == 0:
         # No coverage ... the result is an empty map
         return HealSparseMap.make_empty_like(map_list[0])
 
     # Initialize the combined map, we know the size
-    cov_map = HealSparseCoverage.make_from_pixels(nside_coverage,
-                                                  nside_sparse,
-                                                  cov_pix)
+    cov_map = HealSparseCoverage.make_from_pixels(nside_coverage, nside_sparse, cov_pix)
     if is_wide_mask:
-        combined_sparse_map = np.zeros(((cov_pix.size + 1)*cov_map.nfine_per_cov,
-                                        wide_mask_width), dtype=dtype) + filler_value
+        combined_sparse_map = (
+            np.zeros(((cov_pix.size + 1) * cov_map.nfine_per_cov, wide_mask_width), dtype=dtype)
+            + filler_value
+        )
     else:
-        combined_sparse_map = np.zeros((cov_pix.size + 1)*cov_map.nfine_per_cov, dtype=dtype) + filler_value
+        combined_sparse_map = np.zeros((cov_pix.size + 1) * cov_map.nfine_per_cov, dtype=dtype) + filler_value
 
     if union:
         combined_sparse_map_touched = np.zeros(len(combined_sparse_map), dtype=np.bool_)
@@ -518,17 +518,17 @@ def _apply_operation(
             values = m.get_values_pix(m_valid_pixels)
             for i in range(wide_mask_width):
                 combined_sparse_map[combined_pixel_index, i] = func(
-                    combined_sparse_map[combined_pixel_index, i],
-                    values[:, i])
+                    combined_sparse_map[combined_pixel_index, i], values[:, i]
+                )
         else:
             if m_index == 0 and fill_with_first_map:
-                combined_sparse_map[combined_pixel_index] = m.get_values_pix(
-                    m_valid_pixels
-                ).astype(combined_sparse_map.dtype)
+                combined_sparse_map[combined_pixel_index] = m.get_values_pix(m_valid_pixels).astype(
+                    combined_sparse_map.dtype
+                )
             else:
                 combined_sparse_map[combined_pixel_index] = func(
-                    combined_sparse_map[combined_pixel_index],
-                    m.get_values_pix(m_valid_pixels))
+                    combined_sparse_map[combined_pixel_index], m.get_values_pix(m_valid_pixels)
+                )
         if union:
             combined_sparse_map_touched[combined_pixel_index] = True
         else:
@@ -545,7 +545,8 @@ def _apply_operation(
         combined_sparse_map[combined_sparse_map_ntouch != len(map_list)] = sentinel
 
     # And set the overflow bins to the sentinel
-    combined_sparse_map[0: cov_map.nfine_per_cov] = sentinel
+    combined_sparse_map[0 : cov_map.nfine_per_cov] = sentinel
 
-    return HealSparseMap(cov_map=cov_map, sparse_map=combined_sparse_map,
-                         nside_sparse=nside_sparse, sentinel=sentinel)
+    return HealSparseMap(
+        cov_map=cov_map, sparse_map=combined_sparse_map, nside_sparse=nside_sparse, sentinel=sentinel
+    )

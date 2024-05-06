@@ -12,14 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'healsparse'
-copyright = '2019, Eli Rykoff and Javier Sanchez (LSST Dark Energy Science Collaboration)'
-author = 'Eli Rykoff and Javier Sanchez'
+project = "healsparse"
+copyright = "2019, Eli Rykoff and Javier Sanchez (LSST Dark Energy Science Collaboration)"
+author = "Eli Rykoff and Javier Sanchez"
 
 
 # -- General configuration ---------------------------------------------------
@@ -27,18 +28,19 @@ author = 'Eli Rykoff and Javier Sanchez'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.linkcode',
-              'sphinx.ext.napoleon',
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.napoleon",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -46,36 +48,37 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # -- Adding the API reference ------------------------------------------------
 
 import inspect
-from os.path import relpath, dirname
+from os.path import dirname, relpath
 
-import healsparse # for the relpath below
+import healsparse  # for the relpath below
+
 
 def linkcode_resolve(domain, info):
     """
     Determine the URL corresponding to Python object
     """
-    if domain != 'py':
+    if domain != "py":
         return None
 
-    modname = info['module']
-    fullname = info['fullname']
+    modname = info["module"]
+    fullname = info["fullname"]
 
     submod = sys.modules.get(modname)
     if submod is None:
         return None
 
     obj = submod
-    for part in fullname.split('.'):
+    for part in fullname.split("."):
         try:
             obj = getattr(obj, part)
         except:
@@ -107,5 +110,5 @@ def linkcode_resolve(domain, info):
 
     # Could use version,release declared above here but for now we
     # just link to the latest code on the master branch.
-    github = 'https://github.com/LSSTDESC/healsparse'
-    return '%s/blob/master/healsparse/%s%s' % (github, fn, linespec)
+    github = "https://github.com/LSSTDESC/healsparse"
+    return "%s/blob/master/healsparse/%s%s" % (github, fn, linespec)

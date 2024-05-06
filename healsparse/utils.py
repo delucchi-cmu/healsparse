@@ -1,14 +1,15 @@
-import numpy as np
-import hpgeom as hpg
-import warnings
 import numbers
+import warnings
+
+import hpgeom as hpg
+import numpy as np
 
 WIDE_NBIT = 8
 WIDE_MASK = np.uint8
 PIXEL_RANGE_THRESHOLD = 100_000
 
 
-def reduce_array(x, reduction='mean', axis=2, weights=None):
+def reduce_array(x, reduction="mean", axis=2, weights=None):
     """
     Auxiliary method to perform one of the following operations:
     nanmean, nanmax, nanmedian, nanmin, nanstd, and, or, wmean.
@@ -31,37 +32,36 @@ def reduce_array(x, reduction='mean', axis=2, weights=None):
     out: `ndarray`.
     """
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=RuntimeWarning)
-        if reduction == 'mean':
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        if reduction == "mean":
             ret = np.nanmean(x, axis=axis).ravel()
-        elif reduction == 'median':
+        elif reduction == "median":
             ret = np.nanmedian(x, axis=axis).ravel()
-        elif reduction == 'std':
+        elif reduction == "std":
             ret = np.nanstd(x, axis=axis).ravel()
-        elif reduction == 'max':
+        elif reduction == "max":
             ret = np.nanmax(x, axis=axis).ravel()
-        elif reduction == 'min':
+        elif reduction == "min":
             ret = np.nanmin(x, axis=axis).ravel()
-        elif reduction == 'sum':
+        elif reduction == "sum":
             ret = np.nansum(x, axis=axis).ravel()
-        elif reduction == 'prod':
+        elif reduction == "prod":
             ret = np.nanprod(x, axis=axis).ravel()
-        elif reduction == 'and':
+        elif reduction == "and":
             # ravel does not yield the same format as wide_mask
             ret = np.bitwise_and.reduce(x, axis=axis).ravel()
-        elif reduction == 'or':
+        elif reduction == "or":
             ret = np.bitwise_or.reduce(x, axis=axis).ravel()
-        elif reduction == 'wmean':
+        elif reduction == "wmean":
             if weights is None:
                 ret = np.nanmean(x, axis=axis).ravel()
             else:
                 if weights.shape != x.shape:
-                    raise ValueError('Weights should have the same shape as x')
+                    raise ValueError("Weights should have the same shape as x")
                 else:
-                    ret = (np.nansum(x*weights, axis=axis) /
-                           np.nansum(weights, axis=axis)).ravel()
+                    ret = (np.nansum(x * weights, axis=axis) / np.nansum(weights, axis=axis)).ravel()
         else:
-            raise ValueError('Reduction method %s not recognized.' % reduction)
+            raise ValueError("Reduction method %s not recognized." % reduction)
 
     return ret
 
@@ -98,8 +98,7 @@ def check_sentinel(type, sentinel):
         if sentinel is None:
             return type(np.iinfo(type).min)
         if is_integer_value(sentinel):
-            if (sentinel < np.iinfo(type).min or
-                    sentinel > np.iinfo(type).max):
+            if sentinel < np.iinfo(type).min or sentinel > np.iinfo(type).max:
                 raise ValueError("Sentinel out of range of type")
             return type(sentinel)
         else:
@@ -151,7 +150,7 @@ def _get_field_and_bitval(bit):
     """
 
     field = bit // WIDE_NBIT
-    bitval = WIDE_MASK(np.left_shift(1, bit - field*WIDE_NBIT))
+    bitval = WIDE_MASK(np.left_shift(1, bit - field * WIDE_NBIT))
 
     return field, bitval
 
@@ -196,4 +195,4 @@ def _compute_bitshift(nside_coarse, nside_fine):
     bit_shift : `int`
        Number of bits to shift to convert nest pixels
     """
-    return 2*int(np.round(np.log2(nside_fine / nside_coarse)))
+    return 2 * int(np.round(np.log2(nside_fine / nside_coarse)))

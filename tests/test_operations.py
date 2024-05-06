@@ -1,7 +1,8 @@
 import unittest
-import numpy.testing as testing
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
 from numpy import random
 
 import healsparse
@@ -45,7 +46,7 @@ class OperationsTestCase(unittest.TestCase):
         # sum 2
         added_map_intersection = healsparse.sum_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_sum_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_sum_intersection[gd] = hpmap1[gd] + hpmap2[gd]
 
@@ -54,7 +55,7 @@ class OperationsTestCase(unittest.TestCase):
         # sum 3
         added_map_intersection = healsparse.sum_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_sum_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_sum_intersection[gd] = hpmap1[gd] + hpmap2[gd] + hpmap3[gd]
 
@@ -63,16 +64,9 @@ class OperationsTestCase(unittest.TestCase):
         # Union addition
 
         # sum 2
-        added_map_union = healsparse.sum_union(
-            [
-                sparse_map_empty,
-                sparse_map1,
-                sparse_map2,
-                sparse_map_empty
-            ]
-        )
+        added_map_union = healsparse.sum_union([sparse_map_empty, sparse_map1, sparse_map2, sparse_map_empty])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
         hpmap_sum_union = np.zeros_like(hpmap1) + hpg.UNSEEN
         # This hack works because we don't have summands going below zero...
         hpmap_sum_union[gd] = np.clip(hpmap1[gd], 0.0, None) + np.clip(hpmap2[gd], 0.0, None)
@@ -82,12 +76,12 @@ class OperationsTestCase(unittest.TestCase):
         # sum 3
         added_map_union = healsparse.sum_union([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
         hpmap_sum_union = np.zeros_like(hpmap1) + hpg.UNSEEN
         # This hack works because we don't have summands going below zero...
-        hpmap_sum_union[gd] = (np.clip(hpmap1[gd], 0.0, None) +
-                               np.clip(hpmap2[gd], 0.0, None) +
-                               np.clip(hpmap3[gd], 0.0, None))
+        hpmap_sum_union[gd] = (
+            np.clip(hpmap1[gd], 0.0, None) + np.clip(hpmap2[gd], 0.0, None) + np.clip(hpmap3[gd], 0.0, None)
+        )
 
         testing.assert_almost_equal(hpmap_sum_union, added_map_union.generate_healpix_map())
 
@@ -96,7 +90,7 @@ class OperationsTestCase(unittest.TestCase):
         added_map = sparse_map1 + 2
 
         hpmapAdd2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmapAdd2[gd] = hpmap1[gd] + 2
 
         testing.assert_almost_equal(hpmapAdd2, added_map.generate_healpix_map())
@@ -106,7 +100,7 @@ class OperationsTestCase(unittest.TestCase):
         added_map = sparse_map1 + 2.0
 
         hpmapAdd2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmapAdd2[gd] = hpmap1[gd] + 2.0
 
         testing.assert_almost_equal(hpmapAdd2, added_map.generate_healpix_map())
@@ -153,35 +147,37 @@ class OperationsTestCase(unittest.TestCase):
         # product of 2
         product_map_intersection = healsparse.product_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_product_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_product_intersection[gd] = hpmap1[gd] * hpmap2[gd]
 
-        testing.assert_almost_equal(hpmap_product_intersection,
-                                    product_map_intersection.generate_healpix_map())
+        testing.assert_almost_equal(
+            hpmap_product_intersection, product_map_intersection.generate_healpix_map()
+        )
 
         # product of 3
         product_map_intersection = healsparse.product_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_product_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_product_intersection[gd] = hpmap1[gd] * hpmap2[gd] * hpmap3[gd]
 
-        testing.assert_almost_equal(hpmap_product_intersection,
-                                    product_map_intersection.generate_healpix_map())
+        testing.assert_almost_equal(
+            hpmap_product_intersection, product_map_intersection.generate_healpix_map()
+        )
 
         # Union product
 
         # product of 2
         product_map_union = healsparse.product_union([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
         hpmap_product_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
         hpmap_product_union[gd] = 1.0
-        gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
+        (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
         hpmap_product_union[gd[gd1]] *= hpmap1[gd[gd1]]
-        gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
+        (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
         hpmap_product_union[gd[gd2]] *= hpmap2[gd[gd2]]
 
         testing.assert_almost_equal(hpmap_product_union, product_map_union.generate_healpix_map())
@@ -189,15 +185,15 @@ class OperationsTestCase(unittest.TestCase):
         # product 3
         product_map_union = healsparse.product_union([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
         hpmap_product_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
         hpmap_product_union[gd] = 1.0
-        gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
+        (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
         hpmap_product_union[gd[gd1]] *= hpmap1[gd[gd1]]
-        gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
+        (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
         hpmap_product_union[gd[gd2]] *= hpmap2[gd[gd2]]
-        gd3, = np.where(hpmap3[gd] > hpg.UNSEEN)
+        (gd3,) = np.where(hpmap3[gd] > hpg.UNSEEN)
         hpmap_product_union[gd[gd3]] *= hpmap3[gd[gd3]]
 
         testing.assert_almost_equal(hpmap_product_union, product_map_union.generate_healpix_map())
@@ -207,7 +203,7 @@ class OperationsTestCase(unittest.TestCase):
         mult_map = sparse_map1 * 2
 
         hpmap_product2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmap_product2[gd] = hpmap1[gd] * 2
 
         testing.assert_almost_equal(hpmap_product2, mult_map.generate_healpix_map())
@@ -217,7 +213,7 @@ class OperationsTestCase(unittest.TestCase):
         mult_map = sparse_map1 * 2.0
 
         hpmap_product2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmap_product2[gd] = hpmap1[gd] * 2.0
 
         testing.assert_almost_equal(hpmap_product2, mult_map.generate_healpix_map())
@@ -262,21 +258,23 @@ class OperationsTestCase(unittest.TestCase):
         # Intersection division
         division_map_intersection = healsparse.divide_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_division_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_division_intersection[gd] = hpmap1[gd] / hpmap2[gd]
 
-        testing.assert_almost_equal(hpmap_division_intersection,
-                                    division_map_intersection.generate_healpix_map())
+        testing.assert_almost_equal(
+            hpmap_division_intersection, division_map_intersection.generate_healpix_map()
+        )
 
         division_map_intersection = healsparse.divide_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_division_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_division_intersection[gd] = hpmap1[gd] / hpmap2[gd] / hpmap3[gd]
 
-        testing.assert_almost_equal(hpmap_division_intersection,
-                                    division_map_intersection.generate_healpix_map())
+        testing.assert_almost_equal(
+            hpmap_division_intersection, division_map_intersection.generate_healpix_map()
+        )
 
     def test_floor_divide(self):
         """
@@ -335,7 +333,7 @@ class OperationsTestCase(unittest.TestCase):
 
         floor_divide_map_intersection = healsparse.floor_divide_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel))
         hpmap_floor_divide_intersection = np.zeros_like(hpmap1)
         hpmap_floor_divide_intersection[gd] = hpmap1[gd] // hpmap2[gd]
 
@@ -349,7 +347,7 @@ class OperationsTestCase(unittest.TestCase):
             [sparse_map1, sparse_map2, sparse_map3]
         )
 
-        gd, = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel) & (hpmap3 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel) & (hpmap3 > sentinel))
         hpmap_floor_divide_intersection = np.zeros_like(hpmap1)
         hpmap_floor_divide_intersection[gd] = hpmap1[gd] // hpmap2[gd] // hpmap3[gd]
 
@@ -421,7 +419,7 @@ class OperationsTestCase(unittest.TestCase):
         # product of 2
         product_map_intersection = healsparse.product_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel))
         hpmap_product_intersection = np.zeros_like(hpmap1)
         hpmap_product_intersection[gd] = hpmap1[gd] * hpmap2[gd]
 
@@ -434,7 +432,7 @@ class OperationsTestCase(unittest.TestCase):
         # product of 3
         product_map_intersection = healsparse.product_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel) & (hpmap3 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) & (hpmap2 > sentinel) & (hpmap3 > sentinel))
         hpmap_product_intersection = np.zeros_like(hpmap1)
         hpmap_product_intersection[gd] = hpmap1[gd] * hpmap2[gd] * hpmap3[gd]
 
@@ -449,13 +447,13 @@ class OperationsTestCase(unittest.TestCase):
         # product of 2
         product_map_union = healsparse.product_union([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > sentinel) | (hpmap2 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) | (hpmap2 > sentinel))
         hpmap_product_union = np.zeros_like(hpmap1)
 
         hpmap_product_union[gd] = 1
-        gd1, = np.where(hpmap1[gd] > sentinel)
+        (gd1,) = np.where(hpmap1[gd] > sentinel)
         hpmap_product_union[gd[gd1]] *= hpmap1[gd[gd1]]
-        gd2, = np.where(hpmap2[gd] > sentinel)
+        (gd2,) = np.where(hpmap2[gd] > sentinel)
         hpmap_product_union[gd[gd2]] *= hpmap2[gd[gd2]]
 
         pmap = np.zeros(hpg.nside_to_npixel(nside_map), dtype=np.int64)
@@ -467,15 +465,15 @@ class OperationsTestCase(unittest.TestCase):
         # product 3
         product_map_union = healsparse.product_union([sparse_map1, sparse_map2, sparse_map3])
 
-        gd, = np.where((hpmap1 > sentinel) | (hpmap2 > sentinel) | (hpmap3 > sentinel))
+        (gd,) = np.where((hpmap1 > sentinel) | (hpmap2 > sentinel) | (hpmap3 > sentinel))
         hpmap_product_union = np.zeros_like(hpmap1)
 
         hpmap_product_union[gd] = 1
-        gd1, = np.where(hpmap1[gd] > sentinel)
+        (gd1,) = np.where(hpmap1[gd] > sentinel)
         hpmap_product_union[gd[gd1]] *= hpmap1[gd[gd1]]
-        gd2, = np.where(hpmap2[gd] > sentinel)
+        (gd2,) = np.where(hpmap2[gd] > sentinel)
         hpmap_product_union[gd[gd2]] *= hpmap2[gd[gd2]]
-        gd3, = np.where(hpmap3[gd] > sentinel)
+        (gd3,) = np.where(hpmap3[gd] > sentinel)
         hpmap_product_union[gd[gd3]] *= hpmap3[gd[gd3]]
 
         pmap = np.zeros(hpg.nside_to_npixel(nside_map), dtype=np.int64)
@@ -489,7 +487,7 @@ class OperationsTestCase(unittest.TestCase):
         mult_map = sparse_map1 * 2
 
         hpmap_product2 = np.zeros_like(hpmap1)
-        gd, = np.where(hpmap1 > sentinel)
+        (gd,) = np.where(hpmap1 > sentinel)
         hpmap_product2[gd] = hpmap1[gd] * 2
 
         pmap = np.zeros(hpg.nside_to_npixel(nside_map), dtype=np.int64)
@@ -534,7 +532,7 @@ class OperationsTestCase(unittest.TestCase):
             # or 2
             or_map_intersection = healsparse.or_intersection([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
             hpmap_or_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
             hpmap_or_intersection[gd] = hpmap1[gd].astype(dtype) | hpmap2[gd].astype(dtype)
 
@@ -543,11 +541,11 @@ class OperationsTestCase(unittest.TestCase):
             # or 3
             or_map_intersection = healsparse.or_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
             hpmap_or_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
-            hpmap_or_intersection[gd] = (hpmap1[gd].astype(dtype) |
-                                         hpmap2[gd].astype(dtype) |
-                                         hpmap3[gd].astype(dtype))
+            hpmap_or_intersection[gd] = (
+                hpmap1[gd].astype(dtype) | hpmap2[gd].astype(dtype) | hpmap3[gd].astype(dtype)
+            )
 
             testing.assert_almost_equal(hpmap_or_intersection, or_map_intersection.generate_healpix_map())
 
@@ -556,21 +554,24 @@ class OperationsTestCase(unittest.TestCase):
             # or 2
             or_map_union = healsparse.or_union([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
             hpmap_or_union = np.zeros_like(hpmap1) + hpg.UNSEEN
-            hpmap_or_union[gd] = (np.clip(hpmap1[gd], 0.0, None).astype(dtype) |
-                                  np.clip(hpmap2[gd], 0.0, None).astype(dtype))
+            hpmap_or_union[gd] = np.clip(hpmap1[gd], 0.0, None).astype(dtype) | np.clip(
+                hpmap2[gd], 0.0, None
+            ).astype(dtype)
 
             testing.assert_almost_equal(hpmap_or_union, or_map_union.generate_healpix_map())
 
             # or 3
             or_map_union = healsparse.or_union([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
             hpmap_or_union = np.zeros_like(hpmap1) + hpg.UNSEEN
-            hpmap_or_union[gd] = (np.clip(hpmap1[gd], 0.0, None).astype(dtype) |
-                                  np.clip(hpmap2[gd], 0.0, None).astype(dtype) |
-                                  np.clip(hpmap3[gd], 0.0, None).astype(dtype))
+            hpmap_or_union[gd] = (
+                np.clip(hpmap1[gd], 0.0, None).astype(dtype)
+                | np.clip(hpmap2[gd], 0.0, None).astype(dtype)
+                | np.clip(hpmap3[gd], 0.0, None).astype(dtype)
+            )
 
             testing.assert_almost_equal(hpmap_or_union, or_map_union.generate_healpix_map())
 
@@ -579,7 +580,7 @@ class OperationsTestCase(unittest.TestCase):
             or_map = sparse_map1 | 2
 
             hpmap_or2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-            gd, = np.where(hpmap1 > hpg.UNSEEN)
+            (gd,) = np.where(hpmap1 > hpg.UNSEEN)
             hpmap_or2[gd] = hpmap1[gd].astype(dtype) | 2
             testing.assert_almost_equal(hpmap_or2, or_map.generate_healpix_map())
 
@@ -625,12 +626,12 @@ class OperationsTestCase(unittest.TestCase):
             # and 2
             and_map_intersection = healsparse.and_intersection([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
             hpmap_and_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
             hpmap_and_intersection[gd] = hpmap1[gd].astype(dtype) & hpmap2[gd].astype(dtype)
             if dtype == np.uint64:
                 # For uint, we cannot tell the difference between 0 and UNSEEN
-                bd, = np.where(hpmap_and_intersection == 0)
+                (bd,) = np.where(hpmap_and_intersection == 0)
                 hpmap_and_intersection[bd] = hpg.UNSEEN
 
             testing.assert_almost_equal(hpmap_and_intersection, and_map_intersection.generate_healpix_map())
@@ -638,14 +639,14 @@ class OperationsTestCase(unittest.TestCase):
             # and 3
             and_map_intersection = healsparse.and_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
             hpmap_and_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
-            hpmap_and_intersection[gd] = (hpmap1[gd].astype(dtype) &
-                                          hpmap2[gd].astype(dtype) &
-                                          hpmap3[gd].astype(dtype))
+            hpmap_and_intersection[gd] = (
+                hpmap1[gd].astype(dtype) & hpmap2[gd].astype(dtype) & hpmap3[gd].astype(dtype)
+            )
             if dtype == np.uint64:
                 # For uint, we cannot tell the difference between 0 and UNSEEN
-                bd, = np.where(hpmap_and_intersection == 0)
+                (bd,) = np.where(hpmap_and_intersection == 0)
                 hpmap_and_intersection[bd] = hpg.UNSEEN
 
             testing.assert_almost_equal(hpmap_and_intersection, and_map_intersection.generate_healpix_map())
@@ -655,19 +656,21 @@ class OperationsTestCase(unittest.TestCase):
             # and 2
             and_map_union = healsparse.and_union([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
             hpmap_and_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
             hpmap_and_union[gd] = -1.0
-            gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
-            hpmap_and_union[gd[gd1]] = (hpmap_and_union[gd[gd1]].astype(np.int64) &
-                                        hpmap1[gd[gd1]].astype(np.int64))
-            gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
-            hpmap_and_union[gd[gd2]] = (hpmap_and_union[gd[gd2]].astype(np.int64) &
-                                        hpmap2[gd[gd2]].astype(np.int64))
+            (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
+            hpmap_and_union[gd[gd1]] = hpmap_and_union[gd[gd1]].astype(np.int64) & hpmap1[gd[gd1]].astype(
+                np.int64
+            )
+            (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
+            hpmap_and_union[gd[gd2]] = hpmap_and_union[gd[gd2]].astype(np.int64) & hpmap2[gd[gd2]].astype(
+                np.int64
+            )
             if dtype == np.uint64:
                 # For uint, we cannot tell the difference between 0 and UNSEEN
-                bd, = np.where(hpmap_and_union == 0)
+                (bd,) = np.where(hpmap_and_union == 0)
                 hpmap_and_union[bd] = hpg.UNSEEN
 
             testing.assert_almost_equal(hpmap_and_union, and_map_union.generate_healpix_map())
@@ -675,22 +678,25 @@ class OperationsTestCase(unittest.TestCase):
             # and 3
             and_map_union = healsparse.and_union([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
             hpmap_and_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
             hpmap_and_union[gd] = -1.0
-            gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
-            hpmap_and_union[gd[gd1]] = (hpmap_and_union[gd[gd1]].astype(np.int64) &
-                                        hpmap1[gd[gd1]].astype(np.int64))
-            gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
-            hpmap_and_union[gd[gd2]] = (hpmap_and_union[gd[gd2]].astype(np.int64) &
-                                        hpmap2[gd[gd2]].astype(np.int64))
-            gd3, = np.where(hpmap3[gd] > hpg.UNSEEN)
-            hpmap_and_union[gd[gd3]] = (hpmap_and_union[gd[gd3]].astype(np.int64) &
-                                        hpmap3[gd[gd3]].astype(np.int64))
+            (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
+            hpmap_and_union[gd[gd1]] = hpmap_and_union[gd[gd1]].astype(np.int64) & hpmap1[gd[gd1]].astype(
+                np.int64
+            )
+            (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
+            hpmap_and_union[gd[gd2]] = hpmap_and_union[gd[gd2]].astype(np.int64) & hpmap2[gd[gd2]].astype(
+                np.int64
+            )
+            (gd3,) = np.where(hpmap3[gd] > hpg.UNSEEN)
+            hpmap_and_union[gd[gd3]] = hpmap_and_union[gd[gd3]].astype(np.int64) & hpmap3[gd[gd3]].astype(
+                np.int64
+            )
             if dtype == np.uint64:
                 # For uint, we cannot tell the difference between 0 and UNSEEN
-                bd, = np.where(hpmap_and_union == 0)
+                (bd,) = np.where(hpmap_and_union == 0)
                 hpmap_and_union[bd] = hpg.UNSEEN
 
             testing.assert_almost_equal(hpmap_and_union, and_map_union.generate_healpix_map())
@@ -700,11 +706,11 @@ class OperationsTestCase(unittest.TestCase):
             and_map = sparse_map1 & 2
 
             hpmap_and2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-            gd, = np.where(hpmap1 > hpg.UNSEEN)
+            (gd,) = np.where(hpmap1 > hpg.UNSEEN)
             hpmap_and2[gd] = hpmap1[gd].astype(dtype) & 2
             if dtype == np.uint64:
                 # For uint, we cannot tell the difference between 0 and UNSEEN
-                bd, = np.where(hpmap_and2 == 0)
+                (bd,) = np.where(hpmap_and2 == 0)
                 hpmap_and2[bd] = hpg.UNSEEN
 
             testing.assert_almost_equal(hpmap_and2, and_map.generate_healpix_map())
@@ -750,7 +756,7 @@ class OperationsTestCase(unittest.TestCase):
             # xor 2
             xor_map_intersection = healsparse.xor_intersection([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
             hpmap_xor_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
             hpmap_xor_intersection[gd] = hpmap1[gd].astype(np.int64) ^ hpmap2[gd].astype(np.int64)
 
@@ -759,11 +765,11 @@ class OperationsTestCase(unittest.TestCase):
             # xor 3
             xor_map_intersection = healsparse.xor_intersection([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
             hpmap_xor_intersection = np.zeros_like(hpmap1) + hpg.UNSEEN
-            hpmap_xor_intersection[gd] = (hpmap1[gd].astype(np.int64) ^
-                                          hpmap2[gd].astype(np.int64) ^
-                                          hpmap3[gd].astype(np.int64))
+            hpmap_xor_intersection[gd] = (
+                hpmap1[gd].astype(np.int64) ^ hpmap2[gd].astype(np.int64) ^ hpmap3[gd].astype(np.int64)
+            )
 
             testing.assert_almost_equal(hpmap_xor_intersection, xor_map_intersection.generate_healpix_map())
 
@@ -772,35 +778,40 @@ class OperationsTestCase(unittest.TestCase):
             # xor 2
             xor_map_union = healsparse.xor_union([sparse_map1, sparse_map2])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
             hpmap_xor_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
             hpmap_xor_union[gd] = 0.0
-            gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
-            hpmap_xor_union[gd[gd1]] = (hpmap_xor_union[gd[gd1]].astype(np.int64) ^
-                                        hpmap1[gd[gd1]].astype(np.int64))
-            gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
-            hpmap_xor_union[gd[gd2]] = (hpmap_xor_union[gd[gd2]].astype(np.int64) ^
-                                        hpmap2[gd[gd2]].astype(np.int64))
+            (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
+            hpmap_xor_union[gd[gd1]] = hpmap_xor_union[gd[gd1]].astype(np.int64) ^ hpmap1[gd[gd1]].astype(
+                np.int64
+            )
+            (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
+            hpmap_xor_union[gd[gd2]] = hpmap_xor_union[gd[gd2]].astype(np.int64) ^ hpmap2[gd[gd2]].astype(
+                np.int64
+            )
 
             testing.assert_almost_equal(hpmap_xor_union, xor_map_union.generate_healpix_map())
 
             # xor 3
             xor_map_union = healsparse.xor_union([sparse_map1, sparse_map2, sparse_map3])
 
-            gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+            (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
             hpmap_xor_union = np.zeros_like(hpmap1) + hpg.UNSEEN
 
             hpmap_xor_union[gd] = 0.0
-            gd1, = np.where(hpmap1[gd] > hpg.UNSEEN)
-            hpmap_xor_union[gd[gd1]] = (hpmap_xor_union[gd[gd1]].astype(np.int64) ^
-                                        hpmap1[gd[gd1]].astype(np.int64))
-            gd2, = np.where(hpmap2[gd] > hpg.UNSEEN)
-            hpmap_xor_union[gd[gd2]] = (hpmap_xor_union[gd[gd2]].astype(np.int64) ^
-                                        hpmap2[gd[gd2]].astype(np.int64))
-            gd3, = np.where(hpmap3[gd] > hpg.UNSEEN)
-            hpmap_xor_union[gd[gd3]] = (hpmap_xor_union[gd[gd3]].astype(np.int64) ^
-                                        hpmap3[gd[gd3]].astype(np.int64))
+            (gd1,) = np.where(hpmap1[gd] > hpg.UNSEEN)
+            hpmap_xor_union[gd[gd1]] = hpmap_xor_union[gd[gd1]].astype(np.int64) ^ hpmap1[gd[gd1]].astype(
+                np.int64
+            )
+            (gd2,) = np.where(hpmap2[gd] > hpg.UNSEEN)
+            hpmap_xor_union[gd[gd2]] = hpmap_xor_union[gd[gd2]].astype(np.int64) ^ hpmap2[gd[gd2]].astype(
+                np.int64
+            )
+            (gd3,) = np.where(hpmap3[gd] > hpg.UNSEEN)
+            hpmap_xor_union[gd[gd3]] = hpmap_xor_union[gd[gd3]].astype(np.int64) ^ hpmap3[gd[gd3]].astype(
+                np.int64
+            )
 
             testing.assert_almost_equal(hpmap_xor_union, xor_map_union.generate_healpix_map())
 
@@ -809,7 +820,7 @@ class OperationsTestCase(unittest.TestCase):
             xor_map = sparse_map1 ^ 2
 
             hpmap_xor2 = np.zeros_like(hpmap1) + hpg.UNSEEN
-            gd, = np.where(hpmap1 > hpg.UNSEEN)
+            (gd,) = np.where(hpmap1 > hpg.UNSEEN)
             hpmap_xor2[gd] = hpmap1[gd].astype(np.int64) ^ 2
             testing.assert_almost_equal(hpmap_xor2, xor_map.generate_healpix_map())
 
@@ -839,7 +850,7 @@ class OperationsTestCase(unittest.TestCase):
         test_map = sparse_map1 - 2.0
 
         hpmap_test = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmap_test[gd] = hpmap1[gd] - 2.0
 
         testing.assert_almost_equal(hpmap_test, test_map.generate_healpix_map())
@@ -852,7 +863,7 @@ class OperationsTestCase(unittest.TestCase):
         test_map = sparse_map1 / 2.0
 
         hpmap_test = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmap_test[gd] = hpmap1[gd] / 2.0
 
         testing.assert_almost_equal(hpmap_test, test_map.generate_healpix_map())
@@ -862,10 +873,10 @@ class OperationsTestCase(unittest.TestCase):
         testing.assert_almost_equal(hpmap_test, test_map.generate_healpix_map())
 
         # power
-        test_map = sparse_map1 ** 2.0
+        test_map = sparse_map1**2.0
 
         hpmap_test = np.zeros_like(hpmap1) + hpg.UNSEEN
-        gd, = np.where(hpmap1 > hpg.UNSEEN)
+        (gd,) = np.where(hpmap1 > hpg.UNSEEN)
         hpmap_test[gd] = hpmap1[gd] ** 2.0
 
         testing.assert_almost_equal(hpmap_test, test_map.generate_healpix_map())
@@ -908,7 +919,7 @@ class OperationsTestCase(unittest.TestCase):
         # Maximum of 2
         max_map = healsparse.max_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_max = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_max[gd] = np.fmax(hpmap1[gd], hpmap2[gd])
 
@@ -916,7 +927,7 @@ class OperationsTestCase(unittest.TestCase):
 
         # Maximum of 3
         max_map = healsparse.max_intersection([sparse_map1, sparse_map2, sparse_map3])
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_max = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_max[gd] = np.fmax(hpmap1[gd], hpmap2[gd])
         hpmap_max[gd] = np.fmax(hpmap_max[gd], hpmap3[gd])
@@ -957,7 +968,7 @@ class OperationsTestCase(unittest.TestCase):
         # Minimum of 2
         min_map = healsparse.min_intersection([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_min = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_min[gd] = np.fmin(hpmap1[gd], hpmap2[gd])
 
@@ -965,7 +976,7 @@ class OperationsTestCase(unittest.TestCase):
 
         # Minimum of 3 intersection
         min_map = healsparse.min_intersection([sparse_map1, sparse_map2, sparse_map3])
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_min = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_min[gd] = np.fmin(hpmap1[gd], hpmap2[gd])
         hpmap_min[gd] = np.fmin(hpmap_min[gd], hpmap3[gd])
@@ -1005,7 +1016,7 @@ class OperationsTestCase(unittest.TestCase):
         # Maximum of 2 map union
         max_map = healsparse.max_union([sparse_map1, sparse_map2])
 
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN))
         hpmap_max = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_max[gd] = np.fmax(hpmap1[gd], hpmap2[gd])
 
@@ -1013,7 +1024,7 @@ class OperationsTestCase(unittest.TestCase):
 
         # Maximum of 3 map union
         max_map = healsparse.max_union([sparse_map1, sparse_map2, sparse_map3])
-        gd, = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) | (hpmap2 > hpg.UNSEEN) | (hpmap3 > hpg.UNSEEN))
         hpmap_max = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_max[gd] = np.fmax(hpmap1[gd], hpmap2[gd])
         hpmap_max[gd] = np.fmax(hpmap_max[gd], hpmap3[gd])
@@ -1056,7 +1067,7 @@ class OperationsTestCase(unittest.TestCase):
         # This is tricky because UNSEEN it's a float
         hpmap1[hpmap1 == hpg.UNSEEN] = -hpg.UNSEEN
         hpmap2[hpmap2 == hpg.UNSEEN] = -hpg.UNSEEN
-        gd, = np.where((hpmap1 < -hpg.UNSEEN) | (hpmap2 < -hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 < -hpg.UNSEEN) | (hpmap2 < -hpg.UNSEEN))
         hpmap_min = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_min[gd] = np.fmin(hpmap1[gd], hpmap2[gd])  # This would be the intersection
 
@@ -1067,7 +1078,7 @@ class OperationsTestCase(unittest.TestCase):
         hpmap1[hpmap1 == hpg.UNSEEN] = -hpg.UNSEEN
         hpmap2[hpmap2 == hpg.UNSEEN] = -hpg.UNSEEN
         hpmap3[hpmap3 == hpg.UNSEEN] = -hpg.UNSEEN
-        gd, = np.where((hpmap1 < -hpg.UNSEEN) | (hpmap2 < -hpg.UNSEEN) | (hpmap3 < -hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 < -hpg.UNSEEN) | (hpmap2 < -hpg.UNSEEN) | (hpmap3 < -hpg.UNSEEN))
         hpmap_min = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_min[gd] = np.fmin(hpmap1[gd], hpmap2[gd])
         hpmap_min[gd] = np.fmin(hpmap_min[gd], hpmap3[gd])
@@ -1108,7 +1119,7 @@ class OperationsTestCase(unittest.TestCase):
         # Test an example ufunc (np.add) with 2 maps
 
         add_map = healsparse.ufunc_intersection([sparse_map1, sparse_map2], np.add)
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN))
         hpmap_add = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_add[gd] = np.add(hpmap1[gd], hpmap2[gd])
 
@@ -1117,7 +1128,7 @@ class OperationsTestCase(unittest.TestCase):
         # Test an example ufunc (np.add) with 3 maps
 
         add_map = healsparse.ufunc_intersection([sparse_map1, sparse_map2, sparse_map3], np.add)
-        gd, = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
+        (gd,) = np.where((hpmap1 > hpg.UNSEEN) & (hpmap2 > hpg.UNSEEN) & (hpmap3 > hpg.UNSEEN))
         hpmap_add = np.zeros_like(hpmap1) + hpg.UNSEEN
         hpmap_add[gd] = np.add(hpmap1[gd], hpmap2[gd])
         hpmap_add[gd] = np.add(hpmap_add[gd], hpmap3[gd])
@@ -1175,5 +1186,5 @@ class OperationsTestCase(unittest.TestCase):
         testing.assert_almost_equal(hpmap_add, add_map.generate_healpix_map())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

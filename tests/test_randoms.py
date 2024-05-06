@@ -1,6 +1,7 @@
 import unittest
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
 
 import healsparse
 
@@ -20,7 +21,7 @@ class UniformRandomTestCase(unittest.TestCase):
 
         ra, dec = hpg.pixel_to_angle(nside_map, np.arange(hpg.nside_to_npixel(nside_map)))
         # Arbitrarily chosen range
-        gd_pix, = np.where((ra > 100.0) & (ra < 180.0) & (dec > 5.0) & (dec < 30.0))
+        (gd_pix,) = np.where((ra > 100.0) & (ra < 180.0) & (dec > 5.0) & (dec < 30.0))
         sparse_map.update_values_pix(gd_pix, np.zeros(gd_pix.size, dtype=np.float32))
 
         n_random = 100000
@@ -53,7 +54,7 @@ class UniformRandomTestCase(unittest.TestCase):
 
         ra, dec = hpg.pixel_to_angle(nside_map, np.arange(hpg.nside_to_npixel(nside_map)))
         # Arbitrarily chosen range
-        gd_pix, = np.where(((ra > 300.0) | (ra < 80.0)) & (dec > -20.0) & (dec < -5.0))
+        (gd_pix,) = np.where(((ra > 300.0) | (ra < 80.0)) & (dec > -20.0) & (dec < -5.0))
         sparse_map.update_values_pix(gd_pix, np.zeros(gd_pix.size, dtype=np.float32))
 
         n_random = 100000
@@ -84,7 +85,7 @@ class UniformRandomTestCase(unittest.TestCase):
 
         ra, dec = hpg.pixel_to_angle(nside_map, np.arange(hpg.nside_to_npixel(nside_map)))
         # Arbitrarily chosen range
-        gd_pix, = np.where((ra > 100.0) & (ra < 180.0) & (dec > 5.0) & (dec < 30.0))
+        (gd_pix,) = np.where((ra > 100.0) & (ra < 180.0) & (dec > 5.0) & (dec < 30.0))
         sparse_map.update_values_pix(gd_pix, np.zeros(gd_pix.size, dtype=np.float32))
 
         n_random = 100000
@@ -104,5 +105,5 @@ class UniformRandomTestCase(unittest.TestCase):
         self.assertTrue(np.all(sparse_map.get_values_pos(ra_rand, dec_rand, lonlat=True) > hpg.UNSEEN))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

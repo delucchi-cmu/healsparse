@@ -1,17 +1,19 @@
-import unittest
-import numpy.testing as testing
-import numpy as np
-import hpgeom as hpg
-import tempfile
-import shutil
 import os
-import pytest
 import pathlib
+import shutil
+import tempfile
+import unittest
+
+import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
+import pytest
 
 import healsparse
 
 try:
     import healpy as hp
+
     has_healpy = True
 except ImportError:
     has_healpy = False
@@ -25,13 +27,12 @@ class HealSparseCoverageTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 64
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
-        fname = os.path.join(self.test_dir, 'healsparse_map_test.hsp')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
+        fname = os.path.join(self.test_dir, "healsparse_map_test.hsp")
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map,
-                                                         dtype=np.float32)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype=np.float32)
 
-        sparse_map[0: 20000] = np.random.random(size=20000).astype(np.float32)
+        sparse_map[0:20000] = np.random.random(size=20000).astype(np.float32)
 
         sparse_map.write(fname)
 
@@ -49,7 +50,7 @@ class HealSparseCoverageTestCase(unittest.TestCase):
 
             # Ensure that we can address the cov_map by index
             testing.assert_array_equal(cov_map[:], cov_map._cov_index_map)
-            testing.assert_array_equal(cov_map[0: 100], cov_map._cov_index_map[0: 100])
+            testing.assert_array_equal(cov_map[0:100], cov_map._cov_index_map[0:100])
             testing.assert_array_equal([cov_map[0]], [cov_map._cov_index_map[0]])
 
         if not has_healpy:
@@ -57,12 +58,12 @@ class HealSparseCoverageTestCase(unittest.TestCase):
 
         # Make a healpy file and make sure we can't read it
         test_map = np.zeros(hpg.nside_to_npixel(nside_coverage))
-        fname = os.path.join(self.test_dir, 'healpy_map_test.fits')
+        fname = os.path.join(self.test_dir, "healpy_map_test.fits")
         hp.write_map(fname, test_map)
 
         self.assertRaises(RuntimeError, healsparse.HealSparseCoverage.read, fname)
 
-    @pytest.mark.skipif(not healsparse.parquet_shim.use_pyarrow, reason='Requires pyarrow')
+    @pytest.mark.skipif(not healsparse.parquet_shim.use_pyarrow, reason="Requires pyarrow")
     def test_read_parquet_coverage(self):
         """
         Test reading healSparseCoverage from a parquet dataset.
@@ -70,15 +71,14 @@ class HealSparseCoverageTestCase(unittest.TestCase):
         nside_coverage = 32
         nside_map = 64
 
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
-        fname = os.path.join(self.test_dir, 'healsparse_map_test.hsparquet')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
+        fname = os.path.join(self.test_dir, "healsparse_map_test.hsparquet")
 
-        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map,
-                                                         dtype=np.float32)
+        sparse_map = healsparse.HealSparseMap.make_empty(nside_coverage, nside_map, dtype=np.float32)
 
-        sparse_map[0: 20000] = np.random.random(size=20000).astype(np.float32)
+        sparse_map[0:20000] = np.random.random(size=20000).astype(np.float32)
 
-        sparse_map.write(fname, format='parquet')
+        sparse_map.write(fname, format="parquet")
 
         # Generate a coverage mask from the 0: 20000
         cov_mask_test = np.zeros(hpg.nside_to_npixel(nside_coverage), dtype=np.bool_)
@@ -94,25 +94,25 @@ class HealSparseCoverageTestCase(unittest.TestCase):
 
             # Ensure that we can address the cov_map by index
             testing.assert_array_equal(cov_map[:], cov_map._cov_index_map)
-            testing.assert_array_equal(cov_map[0: 100], cov_map._cov_index_map[0: 100])
+            testing.assert_array_equal(cov_map[0:100], cov_map._cov_index_map[0:100])
             testing.assert_array_equal([cov_map[0]], [cov_map._cov_index_map[0]])
 
     def test_read_non_fits(self):
         """Test reading coverage from a file that isn't fits or parquet."""
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
-        fname = os.path.join(self.test_dir, 'NOT_A_FITS_FILE')
-        with open(fname, 'w') as f:
-            f.write('some text.')
+        fname = os.path.join(self.test_dir, "NOT_A_FITS_FILE")
+        with open(fname, "w") as f:
+            f.write("some text.")
 
         self.assertRaises(NotImplementedError, healsparse.HealSparseCoverage.read, fname)
         self.assertRaises(NotImplementedError, healsparse.HealSparseCoverage.read, pathlib.Path(fname))
 
     def test_read_missing_file(self):
         """Test reading coverage from a file that isn't there."""
-        self.test_dir = tempfile.mkdtemp(dir='./', prefix='TestHealSparse-')
+        self.test_dir = tempfile.mkdtemp(dir="./", prefix="TestHealSparse-")
 
-        fname = os.path.join(self.test_dir, 'NOT_A_FILE')
+        fname = os.path.join(self.test_dir, "NOT_A_FILE")
 
         self.assertRaises(IOError, healsparse.HealSparseCoverage.read, fname)
         self.assertRaises(IOError, healsparse.HealSparseCoverage.read, pathlib.Path(fname))
@@ -126,5 +126,5 @@ class HealSparseCoverageTestCase(unittest.TestCase):
                 shutil.rmtree(self.test_dir, True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

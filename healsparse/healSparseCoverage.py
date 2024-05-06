@@ -1,9 +1,10 @@
-import numpy as np
-import hpgeom as hpg
 import warnings
 
-from .utils import _compute_bitshift
+import hpgeom as hpg
+import numpy as np
+
 from .io_coverage import _read_coverage
+from .utils import _compute_bitshift
 
 
 class HealSparseCoverage(object):
@@ -22,6 +23,7 @@ class HealSparseCoverage(object):
     cov_map : `HealSparseCoverage`
         HealSparseCoverage map.
     """
+
     def __init__(self, cov_index_map, nside_sparse):
         self._nside_coverage = hpg.npixel_to_nside(cov_index_map.size)
         self._nside_sparse = nside_sparse
@@ -70,11 +72,11 @@ class HealSparseCoverage(object):
            HealSparseCoverage from file
         """
         if nside_coverage > 128:
-            warnings.warn('Using `nside_coverage` > 128 may result in poor performance', ResourceWarning)
+            warnings.warn("Using `nside_coverage` > 128 may result in poor performance", ResourceWarning)
         bit_shift = _compute_bitshift(nside_coverage, nside_sparse)
         nfine_per_cov = 2**bit_shift
 
-        cov_index_map = -1*np.arange(hpg.nside_to_npixel(nside_coverage), dtype=np.int64)*nfine_per_cov
+        cov_index_map = -1 * np.arange(hpg.nside_to_npixel(nside_coverage), dtype=np.int64) * nfine_per_cov
 
         return cls(cov_index_map, nside_sparse)
 
@@ -98,7 +100,7 @@ class HealSparseCoverage(object):
            HealSparseCoverage from file
         """
         if nside_coverage > 128:
-            warnings.warn('Using `nside_coverage` > 128 may result in poor performance', ResourceWarning)
+            warnings.warn("Using `nside_coverage` > 128 may result in poor performance", ResourceWarning)
         cov_map = cls.make_empty(nside_coverage, nside_sparse)
         cov_map.initialize_pixels(cov_pixels)
 
@@ -113,7 +115,7 @@ class HealSparseCoverage(object):
         cov_pix : `np.ndarray`
            Array of coverage pixels
         """
-        self._cov_index_map[cov_pix] += np.arange(1, len(cov_pix) + 1)*self.nfine_per_cov
+        self._cov_index_map[cov_pix] += np.arange(1, len(cov_pix) + 1) * self.nfine_per_cov
         self._compute_block_to_cov_index()
 
     def append_pixels(self, sparse_map_size, new_cov_pix, check=True, copy=True):
@@ -137,14 +139,16 @@ class HealSparseCoverage(object):
             new_cov_map = self
 
         # Reset to "defaults"
-        cov_index_map_temp = new_cov_map._cov_index_map + np.arange(hpg.nside_to_npixel(self.nside_coverage),
-                                                                    dtype=np.int64)*self.nfine_per_cov
+        cov_index_map_temp = (
+            new_cov_map._cov_index_map
+            + np.arange(hpg.nside_to_npixel(self.nside_coverage), dtype=np.int64) * self.nfine_per_cov
+        )
         # set the new pixels
-        cov_index_map_temp[new_cov_pix] = (np.arange(new_cov_pix.size)*self.nfine_per_cov +
-                                           sparse_map_size)
+        cov_index_map_temp[new_cov_pix] = np.arange(new_cov_pix.size) * self.nfine_per_cov + sparse_map_size
         # Restore the offset
-        cov_index_map_temp -= np.arange(hpg.nside_to_npixel(self.nside_coverage),
-                                        dtype=np.int64)*self.nfine_per_cov
+        cov_index_map_temp -= (
+            np.arange(hpg.nside_to_npixel(self.nside_coverage), dtype=np.int64) * self.nfine_per_cov
+        )
 
         new_cov_map._cov_index_map[:] = cov_index_map_temp
         new_cov_map._compute_block_to_cov_index()
@@ -193,9 +197,10 @@ class HealSparseCoverage(object):
         cov_mask : `np.ndarray`
            Boolean array of coverage mask.
         """
-        cov_mask = (self._cov_index_map[:] +
-                    np.arange(hpg.nside_to_npixel(self._nside_coverage)) *
-                    self._nfine_per_cov) >= self.nfine_per_cov
+        cov_mask = (
+            self._cov_index_map[:]
+            + np.arange(hpg.nside_to_npixel(self._nside_coverage)) * self._nfine_per_cov
+        ) >= self.nfine_per_cov
         return cov_mask
 
     @property
@@ -248,11 +253,12 @@ class HealSparseCoverage(object):
         """
         Compute the mapping from block number to cov_index
         """
-        offset_map = (self._cov_index_map[:] +
-                      np.arange(hpg.nside_to_npixel(self._nside_coverage)) *
-                      self._nfine_per_cov)
-        cov_mask = (offset_map >= self.nfine_per_cov)
-        cov_pixels, = np.where(cov_mask)
+        offset_map = (
+            self._cov_index_map[:]
+            + np.arange(hpg.nside_to_npixel(self._nside_coverage)) * self._nfine_per_cov
+        )
+        cov_mask = offset_map >= self.nfine_per_cov
+        (cov_pixels,) = np.where(cov_mask)
 
         block_number = (offset_map[cov_pixels] // self.nfine_per_cov) - 1
         st = np.argsort(block_number)
@@ -275,6 +281,8 @@ class HealSparseCoverage(object):
         return self.__str__()
 
     def __str__(self):
-        descr = 'HealSparseCoverage: nside_coverage = %d, nside_sparse = %d' % (self._nside_coverage,
-                                                                                self._nside_sparse)
+        descr = "HealSparseCoverage: nside_coverage = %d, nside_sparse = %d" % (
+            self._nside_coverage,
+            self._nside_sparse,
+        )
         return descr

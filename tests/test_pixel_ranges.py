@@ -1,7 +1,9 @@
 import unittest
-import numpy.testing as testing
-import numpy as np
+
 import hpgeom as hpg
+import numpy as np
+import numpy.testing as testing
+
 import healsparse
 
 
@@ -124,8 +126,8 @@ class UpdateValuesPixelRangesTestCase(unittest.TestCase):
             )
             m2 = healsparse.HealSparseMap.make_empty_like(m1)
 
-            m1[10000: 20000] = value
-            m2[10000: 20000] = value
+            m1[10000:20000] = value
+            m2[10000:20000] = value
 
             pixel_ranges = np.zeros((1, 2), dtype=np.int64)
             pixel_ranges[0, :] = [15000, 25000]
@@ -170,8 +172,8 @@ class UpdateValuesPixelRangesTestCase(unittest.TestCase):
             )
             m2 = healsparse.HealSparseMap.make_empty_like(m1)
 
-            m1[10000: 20000] = value
-            m2[10000: 20000] = value
+            m1[10000:20000] = value
+            m2[10000:20000] = value
 
             pixel_ranges = np.zeros((1, 2), dtype=np.int64)
             pixel_ranges[0, :] = [15000, 25000]
@@ -210,8 +212,8 @@ class UpdateValuesPixelRangesTestCase(unittest.TestCase):
             )
             m2 = healsparse.HealSparseMap.make_empty_like(m1)
 
-            m1[10000: 20000] = value
-            m2[10000: 20000] = value
+            m1[10000:20000] = value
+            m2[10000:20000] = value
 
             pixel_ranges = np.zeros((1, 2), dtype=np.int64)
             pixel_ranges[0, :] = [15000, 25000]
@@ -257,5 +259,5 @@ class UpdateValuesPixelRangesTestCase(unittest.TestCase):
         healsparse.healSparseMap.PIXEL_RANGE_THRESHOLD = orig_threshold
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

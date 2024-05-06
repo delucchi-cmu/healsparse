@@ -1,23 +1,23 @@
 import unittest
+
+import hpgeom as hpg
+import numpy as np
 import numpy.testing as testing
 
-import numpy as np
-import hpgeom as hpg
-
 import healsparse
-from healsparse import Circle, Polygon, Ellipse, Box
+from healsparse import Box, Circle, Ellipse, Polygon
 
 
 def atbound(longitude, minval, maxval):
-    w, = np.where(longitude < minval)
+    (w,) = np.where(longitude < minval)
     while w.size > 0:
         longitude[w] += 360.0
-        w, = np.where(longitude < minval)
+        (w,) = np.where(longitude < minval)
 
-    w, = np.where(longitude > maxval)
+    (w,) = np.where(longitude > maxval)
     while w.size > 0:
         longitude[w] -= 360.0
-        w, = np.where(longitude > maxval)
+        (w,) = np.where(longitude > maxval)
 
     return
 
@@ -42,16 +42,16 @@ def _randcap(rng, nrand, ra, dec, rad, get_radius=False):
     """
     # generate uniformly in r**2
     rand_r = rng.uniform(size=nrand)
-    rand_r = np.sqrt(rand_r)*rad
+    rand_r = np.sqrt(rand_r) * rad
 
     # put in degrees
     np.deg2rad(rand_r, rand_r)
 
     # generate position angle uniformly 0,2*PI
-    rand_posangle = rng.uniform(nrand)*2*np.pi
+    rand_posangle = rng.uniform(nrand) * 2 * np.pi
 
-    theta = np.array(dec, dtype='f8', ndmin=1, copy=True)
-    phi = np.array(ra, dtype='f8', ndmin=1, copy=True)
+    theta = np.array(dec, dtype="f8", ndmin=1, copy=True)
+    phi = np.array(ra, dtype="f8", ndmin=1, copy=True)
     theta += 90
 
     np.deg2rad(theta, theta)
@@ -64,7 +64,7 @@ def _randcap(rng, nrand, ra, dec, rad, get_radius=False):
     cosr = np.cos(rand_r)
 
     cospsi = np.cos(rand_posangle)
-    costheta2 = costheta*cosr + sintheta*sinr*cospsi
+    costheta2 = costheta * cosr + sintheta * sinr * cospsi
 
     np.clip(costheta2, -1, 1, costheta2)
 
@@ -72,18 +72,18 @@ def _randcap(rng, nrand, ra, dec, rad, get_radius=False):
     theta2 = np.arccos(costheta2)
     sintheta2 = np.sin(theta2)
 
-    cosDphi = (cosr - costheta*costheta2)/(sintheta*sintheta2)
+    cosDphi = (cosr - costheta * costheta2) / (sintheta * sintheta2)
 
     np.clip(cosDphi, -1, 1, cosDphi)
     Dphi = np.arccos(cosDphi)
 
     # note fancy usage of where
-    phi2 = np.where(rand_posangle > np.pi, phi+Dphi, phi-Dphi)
+    phi2 = np.where(rand_posangle > np.pi, phi + Dphi, phi - Dphi)
 
     np.rad2deg(phi2, phi2)
     np.rad2deg(theta2, theta2)
     rand_ra = phi2
-    rand_dec = theta2-90.0
+    rand_dec = theta2 - 90.0
 
     atbound(rand_ra, 0.0, 360.0)
 
@@ -100,7 +100,7 @@ class GeomTestCase(unittest.TestCase):
         just test we can make a circle and a map from it
         """
         ra, dec = 200.0, 0.0
-        radius = 30.0/3600.0
+        radius = 30.0 / 3600.0
         nside = 2**17
         circle = Circle(
             ra=ra,
@@ -132,7 +132,7 @@ class GeomTestCase(unittest.TestCase):
         nside = 2**17
 
         ra, dec = 200.0, 0.0
-        radius = 30.0/3600.0
+        radius = 30.0 / 3600.0
         circle = Circle(
             ra=ra,
             dec=dec,
@@ -143,7 +143,7 @@ class GeomTestCase(unittest.TestCase):
         smap = circle.get_map(nside_coverage=32, nside_sparse=nside, dtype=np.int16)
 
         # test points we expect to be inside
-        smallrad = radius*0.95
+        smallrad = radius * 0.95
         nrand = 10000
         rra, rdec = _randcap(rng, nrand, ra, dec, smallrad)
 
@@ -152,7 +152,7 @@ class GeomTestCase(unittest.TestCase):
         testing.assert_array_equal(vals, circle.value)
 
         # test points we expect to be outside
-        bigrad = radius*2
+        bigrad = radius * 2
         nrand = 10000
         rra, rdec, rrand = _randcap(
             rng,
@@ -162,7 +162,7 @@ class GeomTestCase(unittest.TestCase):
             bigrad,
             get_radius=True,
         )
-        w, = np.where(rrand > 1.1*radius)
+        (w,) = np.where(rrand > 1.1 * radius)
 
         vals = smap.get_values_pos(rra[w], rdec[w], lonlat=True)
 
@@ -185,10 +185,10 @@ class GeomTestCase(unittest.TestCase):
         and that the values should be either scalar or bits if the map is
         a wide-mask
         """
-        ra = [1., 2.]
-        dec = 1.
-        radius = 1.
-        value = 1.
+        ra = [1.0, 2.0]
+        dec = 1.0
+        radius = 1.0
+        value = 1.0
         testing.assert_raises(ValueError, Circle, ra=ra, dec=dec, radius=radius, value=value)
 
         testing.assert_raises(
@@ -207,7 +207,7 @@ class GeomTestCase(unittest.TestCase):
         nside = 2**17
 
         ra, dec = 200.0, 0.0
-        radius = 30.0/3600.0
+        radius = 30.0 / 3600.0
         nside_render = 2**14
         circle = Circle(
             ra=ra,
@@ -295,17 +295,17 @@ class GeomTestCase(unittest.TestCase):
 
         smap = poly.get_map(nside_coverage=32, nside_sparse=nside, dtype=np.int16)
 
-        rad = 0.1*(ra_range[1] - ra_range[0])
-        decd = 0.1*(dec_range[1] - dec_range[0])
+        rad = 0.1 * (ra_range[1] - ra_range[0])
+        decd = 0.1 * (dec_range[1] - dec_range[0])
 
         rra = rng.uniform(
-            low=ra_range[0]+rad,
-            high=ra_range[1]-rad,
+            low=ra_range[0] + rad,
+            high=ra_range[1] - rad,
             size=nrand,
         )
         rdec = rng.uniform(
-            low=dec_range[0]+decd,
-            high=dec_range[1]-decd,
+            low=dec_range[0] + decd,
+            high=dec_range[1] - decd,
             size=nrand,
         )
 
@@ -379,8 +379,8 @@ class GeomTestCase(unittest.TestCase):
         Test that we can make an ellipse and a map from it.
         """
         ra, dec = 200.0, 0.0
-        semi_major = 30.0/3600.0
-        semi_minor = 15.0/3600.0
+        semi_major = 30.0 / 3600.0
+        semi_minor = 15.0 / 3600.0
         alpha = 45.0
         nside = 2**17
         ellipse = Ellipse(
@@ -414,8 +414,8 @@ class GeomTestCase(unittest.TestCase):
         nside = 2**17
 
         ra, dec = 200.0, 0.0
-        semi_major = 30.0/3600.0
-        semi_minor = 15.0/3600.0
+        semi_major = 30.0 / 3600.0
+        semi_minor = 15.0 / 3600.0
         alpha = 45.0
         ellipse = Ellipse(
             ra=ra,
@@ -429,7 +429,7 @@ class GeomTestCase(unittest.TestCase):
         smap = ellipse.get_map(nside_coverage=32, nside_sparse=nside, dtype=np.int16)
 
         # Test points we know to be inside.
-        smallrad = semi_minor*0.95
+        smallrad = semi_minor * 0.95
         nrand = 10000
         rra, rdec = _randcap(rng, nrand, ra, dec, smallrad)
 
@@ -438,7 +438,7 @@ class GeomTestCase(unittest.TestCase):
         testing.assert_array_equal(values, ellipse.value)
 
         # test points we expect to be outside
-        bigrad = semi_major*2
+        bigrad = semi_major * 2
         nrand = 10000
         rra, rdec, rrand = _randcap(
             rng,
@@ -448,7 +448,7 @@ class GeomTestCase(unittest.TestCase):
             bigrad,
             get_radius=True,
         )
-        w, = np.where(rrand > 1.1*semi_major)
+        (w,) = np.where(rrand > 1.1 * semi_major)
 
         vals = smap.get_values_pos(rra[w], rdec[w])
         testing.assert_array_equal(vals, 0)
@@ -471,8 +471,8 @@ class GeomTestCase(unittest.TestCase):
         nside = 2**17
 
         ra, dec = 200.0, 0.0
-        semi_major = 30.0/3600.0
-        semi_minor = 15.0/3600.0
+        semi_major = 30.0 / 3600.0
+        semi_minor = 15.0 / 3600.0
         alpha = 45.0
         nside_render = 2**14
         ellipse = Ellipse(
@@ -854,18 +854,18 @@ class GeomTestCase(unittest.TestCase):
 
             pixels1and2 = np.intersect1d(pixels1, pixels2)
 
-            np.testing.assert_array_equal(m[pixels1and2], 2*value)
-            np.testing.assert_array_equal(m3[pixels1and2], 2*value)
+            np.testing.assert_array_equal(m[pixels1and2], 2 * value)
+            np.testing.assert_array_equal(m3[pixels1and2], 2 * value)
 
     def test_repr(self):
         """
         Test representations
         """
         # The following is needed to eval the repr.
-        from numpy import array # noqa
+        from numpy import array  # noqa
 
         ra, dec = 200.0, 0.0
-        radius = 30.0/3600.0
+        radius = 30.0 / 3600.0
         circle = Circle(
             ra=ra,
             dec=dec,
@@ -903,8 +903,8 @@ class GeomTestCase(unittest.TestCase):
         testing.assert_array_equal(circle._value, circle_rep._value)
 
         ra, dec = 200.0, 0.0
-        semi_major = 30.0/3600.0
-        semi_minor = 15.0/3600.0
+        semi_major = 30.0 / 3600.0
+        semi_minor = 15.0 / 3600.0
         alpha = 45.0
         ellipse = Ellipse(
             ra=ra,
@@ -960,5 +960,5 @@ class GeomTestCase(unittest.TestCase):
         testing.assert_array_equal(poly._value, poly_rep._value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

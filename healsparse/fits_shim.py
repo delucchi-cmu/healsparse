@@ -1,42 +1,65 @@
-import numpy as np
 import mmap
-from .utils import is_integer_value
+
 # We need this for compression before a newer version of fitsio arrives
 import astropy.io.fits as fits
+import numpy as np
+
+from .utils import is_integer_value
 
 use_fitsio = False
 try:
     import fitsio
+
     use_fitsio = True
 except ImportError:
     pass
 
 
 _image_bitpix2npy = {
-    8: 'u1',
-    10: 'i1',
-    16: 'i2',
-    20: 'u2',
-    32: 'i4',
-    40: 'u4',
-    64: 'i8',
-    -32: 'f4',
-    -64: 'f8'}
+    8: "u1",
+    10: "i1",
+    16: "i2",
+    20: "u2",
+    32: "i4",
+    40: "u4",
+    64: "i8",
+    -32: "f4",
+    -64: "f8",
+}
 
 
-FITS_RESERVED = ['TFIELDS', 'TTYPE1', 'TFORM1', 'ZIMAGE',
-                 'ZTENSION', 'ZBITPIX', 'ZNAXIS', 'ZNAXIS1',
-                 'ZPCOUNT', 'ZGCOUNT', 'ZTILE1', 'ZCMPTYPE',
-                 'ZNAME1', 'ZVAL1', 'ZQUANTIZ',
-                 'SIMPLE', 'BITPIX', 'NAXIS', 'NAXIS1', 'NAXIS2',
-                 'PCOUNT', 'GCOUNT']
+FITS_RESERVED = [
+    "TFIELDS",
+    "TTYPE1",
+    "TFORM1",
+    "ZIMAGE",
+    "ZTENSION",
+    "ZBITPIX",
+    "ZNAXIS",
+    "ZNAXIS1",
+    "ZPCOUNT",
+    "ZGCOUNT",
+    "ZTILE1",
+    "ZCMPTYPE",
+    "ZNAME1",
+    "ZVAL1",
+    "ZQUANTIZ",
+    "SIMPLE",
+    "BITPIX",
+    "NAXIS",
+    "NAXIS1",
+    "NAXIS2",
+    "PCOUNT",
+    "GCOUNT",
+]
 
 
 class HealSparseFits(object):
     """
     Wrapper class to handle fitsio or astropy.io.fits
     """
-    def __init__(self, filename, mode='r'):
+
+    def __init__(self, filename, mode="r"):
         """
         Instantiate a HealSparseFits object
 
@@ -57,12 +80,11 @@ class HealSparseFits(object):
         if use_fitsio:
             self.fits_object = fitsio.FITS(filename, mode=mode)
         else:
-            if mode == 'r':
-                fits_mode = 'readonly'
+            if mode == "r":
+                fits_mode = "readonly"
             else:
-                raise RuntimeError('Readonly is only useful mode supported for astropy.io.fits')
-            self.fits_object = fits.open(filename, memmap=True, lazy_load_hdus=True,
-                                         mode=fits_mode)
+                raise RuntimeError("Readonly is only useful mode supported for astropy.io.fits")
+            self.fits_object = fits.open(filename, memmap=True, lazy_load_hdus=True, mode=fits_mode)
 
     def read_ext_header(self, extension):
         """
@@ -97,8 +119,8 @@ class HealSparseFits(object):
         """
         if use_fitsio:
             hdu = self.fits_object[extension]
-            if hdu.get_exttype() == 'IMAGE_HDU':
-                return _image_bitpix2npy[hdu.get_info()['img_equiv_type']]
+            if hdu.get_exttype() == "IMAGE_HDU":
+                return _image_bitpix2npy[hdu.get_info()["img_equiv_type"]]
             else:
                 return self.fits_object[extension].get_rec_dtype()[0]
         else:
@@ -106,7 +128,7 @@ class HealSparseFits(object):
             if hdu.is_image:
                 return _image_bitpix2npy[hdu._bitpix]
             else:
-                return hdu.data[0: 1].dtype
+                return hdu.data[0:1].dtype
 
     def read_ext_data(self, extension, row_range=None, col_range=None):
         """
@@ -133,8 +155,7 @@ class HealSparseFits(object):
             elif col_range is None:
                 return hdu[slice(row_range[0], row_range[1])]
             else:
-                return hdu[slice(col_range[0], col_range[1]),
-                           slice(row_range[0], row_range[1])]
+                return hdu[slice(col_range[0], col_range[1]), slice(row_range[0], row_range[1])]
         else:
             # Note that for astropy this does not actually seem to work
             # read a subregion from a tile-compressed image; it reads
@@ -149,11 +170,13 @@ class HealSparseFits(object):
                     return hdu.data[slice(row_range[0], row_range[1])].view(np.ndarray)
             else:
                 try:
-                    return hdu.section[slice(col_range[0], col_range[1]),
-                                       slice(row_range[0], row_range[1])].view(np.ndarray)
+                    return hdu.section[
+                        slice(col_range[0], col_range[1]), slice(row_range[0], row_range[1])
+                    ].view(np.ndarray)
                 except AttributeError:
-                    return hdu.data[slice(col_range[0], col_range[1]),
-                                    slice(row_range[0], row_range[1])].view(np.ndarray)
+                    return hdu.data[
+                        slice(col_range[0], col_range[1]), slice(row_range[0], row_range[1])
+                    ].view(np.ndarray)
 
     def ext_is_image(self, extension):
         """
@@ -170,7 +193,7 @@ class HealSparseFits(object):
         """
         hdu = self.fits_object[extension]
         if use_fitsio:
-            if hdu.get_exttype() == 'IMAGE_HDU':
+            if hdu.get_exttype() == "IMAGE_HDU":
                 return True
             else:
                 return False
@@ -188,17 +211,17 @@ class HealSparseFits(object):
         data : `np.ndarray`
            Data to append
         """
-        if self._mode != 'rw':
+        if self._mode != "rw":
             raise RuntimeError("Appending only allowed in rw mode")
 
         hdu = self.fits_object[extension]
         if use_fitsio:
-            if hasattr(hdu, 'append'):
+            if hasattr(hdu, "append"):
                 # A recarray that we can append to
                 hdu.append(data)
             else:
                 # An image that we cannot append to
-                firstrow = (hdu.get_dims()[0], )
+                firstrow = (hdu.get_dims()[0],)
                 hdu.write(data, start=firstrow)
         else:
             raise RuntimeError("Appending is not supported by astropy.io.fits")
@@ -213,8 +236,9 @@ class HealSparseFits(object):
         self.fits_object.close()
 
 
-def _write_filename(filename, c_hdr, s_hdr, cov_index_map, sparse_map,
-                    compress=False, compress_tilesize=None):
+def _write_filename(
+    filename, c_hdr, s_hdr, cov_index_map, sparse_map, compress=False, compress_tilesize=None
+):
     """
     Write to a filename, using fitsio or astropy.io.fits.
 
@@ -236,8 +260,8 @@ def _write_filename(filename, c_hdr, s_hdr, cov_index_map, sparse_map,
     compress : `bool`, optional
        Write with FITS compression?
     """
-    c_hdr['EXTNAME'] = 'COV'
-    s_hdr['EXTNAME'] = 'SPARSE'
+    c_hdr["EXTNAME"] = "COV"
+    s_hdr["EXTNAME"] = "SPARSE"
 
     integer_map = sparse_map.dtype.fields is None and is_integer_value(sparse_map.dtype.type(0))
     if integer_map:
@@ -251,14 +275,13 @@ def _write_filename(filename, c_hdr, s_hdr, cov_index_map, sparse_map,
         # and also record that there has been a reshape in the header.
 
         if len(sparse_map) > (2**31 - 1):
-            _sparse_map = sparse_map.reshape((len(sparse_map)//compress_tilesize,
-                                              compress_tilesize))
+            _sparse_map = sparse_map.reshape((len(sparse_map) // compress_tilesize, compress_tilesize))
             _tile_shape = (1, compress_tilesize)
-            s_hdr['RESHAPED'] = True
+            s_hdr["RESHAPED"] = True
         else:
             _sparse_map = sparse_map
-            _tile_shape = (compress_tilesize, )
-            s_hdr['RESHAPED'] = False
+            _tile_shape = (compress_tilesize,)
+            s_hdr["RESHAPED"] = False
 
     if use_fitsio and integer_map:
         # Preferred because it is faster for integer writes.
@@ -292,16 +315,22 @@ def _write_filename(filename, c_hdr, s_hdr, cov_index_map, sparse_map,
         if compress:
             try:
                 # Try new tile_shape API (astropy>=5.3).
-                hdu = fits.CompImageHDU(data=_sparse_map, header=fits.Header(),
-                                        compression_type=compression,
-                                        tile_shape=_tile_shape,
-                                        quantize_level=0.0)
+                hdu = fits.CompImageHDU(
+                    data=_sparse_map,
+                    header=fits.Header(),
+                    compression_type=compression,
+                    tile_shape=_tile_shape,
+                    quantize_level=0.0,
+                )
             except TypeError:
                 # Fall back to old tile_size API.
-                hdu = fits.CompImageHDU(data=sparse_map, header=fits.Header(),
-                                        compression_type=compression,
-                                        tile_size=_tile_shape,
-                                        quantize_level=0.0)
+                hdu = fits.CompImageHDU(
+                    data=sparse_map,
+                    header=fits.Header(),
+                    compression_type=compression,
+                    tile_size=_tile_shape,
+                    quantize_level=0.0,
+                )
         else:
             if sparse_map.dtype.fields is not None:
                 hdu = fits.BinTableHDU(data=sparse_map, header=fits.Header())

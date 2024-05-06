@@ -1,6 +1,7 @@
 import os
-import numpy as np
 import warnings
+
+import numpy as np
 
 from .fits_shim import _make_header, _write_healpix_filename
 
@@ -39,18 +40,17 @@ def _write_map_healpix(hsp_map, filename, clobber=False):
     valid_pixels = hsp_map.valid_pixels
 
     hdr = _make_header(hsp_map.metadata)
-    hdr['PIXTYPE'] = 'HEALPIX'
-    hdr['INDXSCHM'] = 'EXPLICIT'
-    hdr['ORDERING'] = 'NESTED'
-    hdr['NSIDE'] = hsp_map._nside_sparse
-    hdr['OBS_NPIX'] = valid_pixels.size
-    hdr['BAD_DATA'] = hsp_map._sentinel
-    hdr['OBJECT'] = 'PARTIAL'
-    hdr['COORDSYS'] = 'C'
+    hdr["PIXTYPE"] = "HEALPIX"
+    hdr["INDXSCHM"] = "EXPLICIT"
+    hdr["ORDERING"] = "NESTED"
+    hdr["NSIDE"] = hsp_map._nside_sparse
+    hdr["OBS_NPIX"] = valid_pixels.size
+    hdr["BAD_DATA"] = hsp_map._sentinel
+    hdr["OBJECT"] = "PARTIAL"
+    hdr["COORDSYS"] = "C"
 
-    output_struct = np.zeros(valid_pixels.size, dtype=[('PIXEL', 'i8'),
-                                                       ('SIGNAL', hsp_map.dtype)])
-    output_struct['PIXEL'][:] = valid_pixels
-    output_struct['SIGNAL'][:] = hsp_map[valid_pixels]
+    output_struct = np.zeros(valid_pixels.size, dtype=[("PIXEL", "i8"), ("SIGNAL", hsp_map.dtype)])
+    output_struct["PIXEL"][:] = valid_pixels
+    output_struct["SIGNAL"][:] = hsp_map[valid_pixels]
 
     _write_healpix_filename(filename, hdr, output_struct)
